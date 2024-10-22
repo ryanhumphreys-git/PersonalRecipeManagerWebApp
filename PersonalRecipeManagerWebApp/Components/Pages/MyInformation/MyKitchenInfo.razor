@@ -1,0 +1,167 @@
+@page "/myinfo"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using PersonalRecipeManagerWebApp.Models
+@using PersonalRecipeManagerWebApp.Data
+@using PersonalRecipeManagerWebApp.Services
+@inject IHandleInteractionService InteractionService
+@inject NavigationManager NavigationManager
+
+<PageTitle>My Information</PageTitle>
+
+<h1>My Information</h1>
+
+@if (user is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="rz-p-0 rz-p-md-12">
+        <RadzenStack Orientation="Orientation.Vertical" Gap="1rem" class="rz-p-4 rz-mb-6 rz-border-radius-1" Style="border: var(--rz-grid-cell-border);">
+            <RadzenStack Gap="0.5rem" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                <RadzenLabel Text="Edit User Information:" />
+                <RadzenSwitch @bind-Value="disabled" Change="OnSwitchChange" />
+            </RadzenStack>
+        </RadzenStack>
+        
+        <RadzenStack Orientation="Orientation.Horizontal" Wrap="FlexWrap.Wrap" Gap="1rem">
+            <RadzenFormField Text="Name" Variant="Variant.Outlined" Style="flex: 1;">
+                <RadzenTextBox @bind-Value="@user.Name" Disabled="@disabled" />
+            </RadzenFormField>
+            <RadzenFormField Text="Age" Variant="Variant.Outlined" Style="flex: 1;">
+                <RadzenNumeric @bind-Value="@user.Age" Disabled="@disabled" />
+            </RadzenFormField>
+            <RadzenFormField Text="Cooking Skill" Variant="Variant.Outlined" Style="flex: 1;">
+                <RadzenNumeric @bind-Value="@user.CookingSkill" Disabled="@disabled" />
+            </RadzenFormField>
+        </RadzenStack>
+
+        <br />
+
+        <RadzenButton Text="Save" Click="@OnClick" />
+
+        <br/>
+        <br/>
+
+        <RadzenDataGrid @ref="kitchenGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
+                        AllowPaging="true" TItem="Kitchen" FilterMode="FilterMode.Simple" Data="@userKitchens" EditMode="DataGridEditMode.Single"
+                        RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+
+            <HeaderTemplate>
+                <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Kitchen" Click="@InsertRow" Disabled="@disableAdd" />
+            </HeaderTemplate>
+            <Columns>
+                <RadzenDataGridColumn TItem="Kitchen" Property="Name" Title="Name">
+                    <EditTemplate Context="kitchen">
+                        <RadzenTextBox @bind-Value="kitchen.Name" Style="width:100%; display: block" Name="Name" aria-label="Enter Name" />
+                        <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Title="kTypes">
+                    <EditTemplate Context="kitchen">
+                        <RadzenDropDown @bind-Value="kitchen.TypeId" ValueProperty="Id" TextProperty="Name" Data="@kTypes"
+                                        Style="width:100%" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Context="kitchen" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                    <Template Context="kitchen">
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(kitchen))" @onclick:stopPropagation="true">
+                        </RadzenButton>
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="kitchen">
+                        <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Click="@((args) => SaveRow(kitchen))" Size="ButtonSize.Medium" aria-label="Save">
+                        </RadzenButton>
+                        <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => CancelEdit(kitchen))" class="rz-my-1 rz-ms-1" aria-label="Cancel">
+                        </RadzenButton>
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete">
+                        </RadzenButton>
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+            </Columns>
+
+        </RadzenDataGrid>
+
+        
+    </div>
+}
+
+@code {
+    private Guid kitchenId = new Guid("E7C14A98-BF68-4D93-A05E-EAD425347E9F");
+    bool disabled = false;
+    private User user { get; set; }
+    [SupplyParameterFromQuery]
+    private Guid Id { get; set; }
+
+    private IEnumerable<KitchenType> kTypes;
+
+    RadzenDataGrid<Kitchen> kitchenGrid;
+    private List<Kitchen> userKitchens;
+
+    private bool disableAdd = false;
+
+    private async Task OnSwitchChange()
+    {
+        disabled = !disabled;
+    }
+
+    private async Task OnClick()
+    {
+        await InteractionService.UpdateUserInformationAsync(user);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await InteractionService.RetrieveUserInformationByIdAsync(Id);
+
+        kTypes = await InteractionService.RetrieveAllKitchenTypesAsync();
+
+        userKitchens = await InteractionService.RetrieveAllUserKitchens(Id);
+
+        if (user is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    async Task OnCreateRow(Kitchen kitchen)
+    {
+        disableAdd = false;
+
+        Kitchen newKitchen = new(Id, kitchen.TypeId, kitchen.Name);
+
+        await InteractionService.AddKitchenAsync(newKitchen);
+    }
+
+    async Task InsertRow()
+    {
+        disableAdd = true;
+        Kitchen kitchen = new();
+        await kitchenGrid.InsertRow(kitchen);
+    }
+
+    void CancelEdit(Kitchen kitchen)
+    {
+        kitchenGrid.CancelEditRow(kitchen);
+    }
+
+    async Task EditRow(Kitchen kitchen)
+    {
+        await kitchenGrid.EditRow(kitchen);
+    }
+
+    async Task SaveRow(Kitchen kitchen)
+    {
+        await kitchenGrid.UpdateRow(kitchen);
+    }
+
+    async Task OnUpdateRow(Kitchen kitchen)
+    {
+        Kitchen currentKitchen = new(kitchen.Id, kitchen.TypeId, kitchen.Name);
+        await InteractionService.UpsertKitchenAsync(kitchen);
+    }
+}
+
+

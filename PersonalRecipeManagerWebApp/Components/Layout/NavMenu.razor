@@ -1,0 +1,51 @@
+﻿@implements IDisposable
+@rendermode InteractiveServer
+
+@inject NavigationManager NavigationManager
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Recipe Manager</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<RadzenPanelMenu >
+    <RadzenPanelMenuItem Icon="home" Path="" Text="Home"/>
+    <RadzenPanelMenuItem Icon="warehouse" Text="Warehouse">
+        <RadzenPanelMenuItem Icon="warehouse" Path="managewarehouse/ingredients" Text="Ingredients"/>
+        <RadzenPanelMenuItem Icon="warehouse" Path="managewarehouse/equipment" Text="Equipment" />
+    </RadzenPanelMenuItem>
+    <RadzenPanelMenuItem Icon="kitchen" Text="My Kitchen">
+        <RadzenPanelMenuItem Icon="grocery" Path="mykitchen/ingredients" Text="Ingredients"/>
+        <RadzenPanelMenuItem Icon="oven" Path=@($"/mykitchen/equipment?id={userId}") Text="Equipment"/>
+    </RadzenPanelMenuItem>
+    <RadzenPanelMenuItem Icon="list_alt" Path="@($"/recipes?id={userId}")" Text="My Recipes" />
+    <RadzenPanelMenuItem Icon="format_list_bulleted" Path="shoppinglist" Text="Shopping List"/>
+    <RadzenPanelMenuItem Icon="info" Path=@($"/myinfo?id={userId}") Text="My Information" />
+</RadzenPanelMenu>
+
+@code {
+    private Guid userId = new Guid("A40773D4-A9BC-49E8-AD9C-7908B732AD57");
+
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}
+

@@ -1,0 +1,137 @@
+@page "/recipes"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using PersonalRecipeManagerWebApp.Models
+@using PersonalRecipeManagerWebApp.Services
+@using PersonalRecipeManagerWebApp.Data
+@inject IHandleInteractionService InteractionService
+@inject DialogService DialogService
+
+<PageTitle>My Recipes</PageTitle>
+
+<h1>My Recipes</h1>
+
+@if(recipes is null || preRecipe is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <RadzenDataGrid @ref="recipeGrid" AllowFiltering="true" FilterMode="FilterMode.Simple" AllowPaging="true" PageSize="5" AllowSorting="true"
+                    Data="@recipes" TItem="Recipe" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EditMode="DataGridEditMode.Single"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+        <HeaderTemplate>
+            <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Recipe" Click="@InsertRow" Disabled="@disableAdd" />
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn Width="80px" TItem="Recipe" Property="Name" Title="Name">
+                <EditTemplate Context="recipe">
+                    <RadzenTextBox @bind-Value="recipe.Name" Style="width:100%; display: block" Name="Name" aria-label="Enter Name" />
+                    <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Width="50px" TItem="Recipe" Property="Difficulty" Title="Difficulty" >
+                <EditTemplate Context="recipe">
+                    <RadzenNumeric @bind-Value="recipe.Difficulty" Style="width:100%" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select Difficulty" }})"/>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Width="50px" TItem="Recipe"  Property="Time" Title="Time">
+                <EditTemplate Context="recipe">
+                    <RadzenNumeric @bind-Value="recipe.Time" Style="width:100%" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select Time" }})" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Width="50px" TItem="Recipe" Property="Cost" Title="Cost">
+                <Template Context="recipes">
+                    @String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", recipes.Cost)
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Width="100px" TItem="Recipe" Property="Id" Title="Recipe Details">
+                <Template Context="recipe">
+                    <RadzenButton ButtonStyle="ButtonStyle.Info" Variant="Variant.Flat" Shade="Shade.Lighter" Icon="info" class="rz-m-1" 
+                                  Click=@(() => OpenRecipe(recipe.Id)) Text="Recipe Info" />
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Width="50px" Context="recipe" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                <Template Context="recipe">
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(recipe))" @onclick:stopPropagation="true">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
+                    </RadzenButton>
+                </Template>
+                <EditTemplate Context="recipe">
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Click="@((args) => SaveRow(recipe))" Size="ButtonSize.Medium" aria-label="Save">
+                    </RadzenButton>
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => CancelEdit(recipe))" class="rz-my-1 rz-ms-1" aria-label="Cancel">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete">
+                    </RadzenButton>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@code {
+    [SupplyParameterFromQuery]
+    private Guid Id { get; set; }
+    RadzenDataGrid<Recipe> recipeGrid;
+    List<Recipe> preRecipe;
+    List<Recipe> recipes;
+
+    private bool disableAdd;
+
+    async Task OpenRecipe(Guid recipeId) => 
+                await DialogService.OpenAsync<RecipeInfoCard>($"Recipe Information",
+                new Dictionary<string, object>() { { "RecipeId", recipeId } },
+                new DialogOptions() { Width = "700px", Height = "700px" });
+
+    protected override async Task OnInitializedAsync()
+    {
+        preRecipe = await InteractionService.RetrieveUserRecipesByIdAsync(Id);
+        recipes = await InteractionService.RetrieveRecipeCost(preRecipe);
+
+        await base.OnInitializedAsync();
+    }
+
+    async Task OnCreateRow(Recipe recipe)
+    {
+        disableAdd = false;
+
+        UserRecipes userRecipes = new(Guid.NewGuid(), Id, recipe.Id);
+
+        await InteractionService.AddRecipeAsync(recipe);
+        await InteractionService.AddUserRecipeAsync(userRecipes);
+    }
+
+    async Task InsertRow()
+    {
+        disableAdd = true;
+        var recipe = new Recipe(Guid.NewGuid());
+        await recipeGrid.InsertRow(recipe);
+    }
+    void CancelEdit(Recipe recipe)
+    {
+        recipeGrid.CancelEditRow(recipe);
+
+        // InteractionService.CancelRecipeTransaction(recipe);
+
+        disableAdd = false;
+    }
+    async Task EditRow(Recipe recipe)
+    {
+        disableAdd = true;
+        await recipeGrid.EditRow(recipe);
+    }
+
+    async Task SaveRow(Recipe recipe)
+    {
+        await recipeGrid.UpdateRow(recipe);
+        StateHasChanged();
+    }
+
+    async Task OnUpdateRow(Recipe recipe)
+    {
+        disableAdd = false;
+        await InteractionService.UpsertRecipeAsync(recipe);
+    }
+}

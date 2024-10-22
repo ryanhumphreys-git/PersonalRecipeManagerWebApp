@@ -1,0 +1,47 @@
+﻿@page "/mykitchen"
+@using Microsoft.EntityFrameworkCore
+@using PersonalRecipeManagerWebApp.Models
+@using PersonalRecipeManagerWebApp.Data
+@inject RecipeContext db
+@inject NavigationManager NavigationManager
+
+<PageTitle>My Kitchen</PageTitle>
+
+<p>Use the navigation to look at what ingredients and equipment you have</p>
+
+<p>Check your recipes and shopping list</p>
+
+<button>
+    <a href="@($"/mykitchen/mykitcheninfo?Id={entityId}")">My Info</a>
+</button>
+
+<button>
+    <a href="/mykitchen/ingredients">Ingredients</a>
+</button>
+
+<button>
+    <a href="@($"/mykitchen/equipment?Id={entityId}")">Equipment</a>
+</button>
+
+<button>
+    <a href="/mykitchen/recipes">Recipes</a>
+</button>
+
+<button>
+    <a href="/mykitchen/shoppinglist">Shopping List</a>
+</button>
+
+@code {
+    // This would be where log in comes into play
+    // passing the correct entity in
+    /* private Entity entity { get; set; }
+    [SupplyParameterFromQuery]
+    private Guid Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var db = new RecipeContext();
+    } */
+
+    private Guid entityId = new Guid("A40773D4-A9BC-49E8-AD9C-7908B732AD57");
+}

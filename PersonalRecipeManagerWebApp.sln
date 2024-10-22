@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonalRecipeManagerWebApp", "PersonalRecipeManagerWebApp\PersonalRecipeManagerWebApp.csproj", "{7C92245E-B223-41C0-8C43-2557E47E5F85}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonalRecipeManagerWebApp.Client", "PersonalRecipeManagerWebApp.Client\PersonalRecipeManagerWebApp.Client.csproj", "{84E9D962-BDA8-438B-BF3C-750D013FC84D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7C92245E-B223-41C0-8C43-2557E47E5F85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C92245E-B223-41C0-8C43-2557E47E5F85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C92245E-B223-41C0-8C43-2557E47E5F85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C92245E-B223-41C0-8C43-2557E47E5F85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84E9D962-BDA8-438B-BF3C-750D013FC84D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84E9D962-BDA8-438B-BF3C-750D013FC84D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84E9D962-BDA8-438B-BF3C-750D013FC84D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84E9D962-BDA8-438B-BF3C-750D013FC84D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D065F27D-31CC-417B-A65A-2811B1465C26}
+	EndGlobalSection
+EndGlobal
