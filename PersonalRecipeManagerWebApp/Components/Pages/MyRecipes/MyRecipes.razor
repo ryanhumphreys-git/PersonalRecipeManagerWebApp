@@ -55,7 +55,7 @@ else
                 <Template Context="recipe">
                     <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(recipe))" @onclick:stopPropagation="true">
                     </RadzenButton>
-                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Click="@((args) => DeleteRow(recipe))" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
                     </RadzenButton>
                 </Template>
                 <EditTemplate Context="recipe">
@@ -63,7 +63,7 @@ else
                     </RadzenButton>
                     <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => CancelEdit(recipe))" class="rz-my-1 rz-ms-1" aria-label="Cancel">
                     </RadzenButton>
-                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete">
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Click="@((args) => DeleteRow(recipe))" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete">
                     </RadzenButton>
                 </EditTemplate>
             </RadzenDataGridColumn>
@@ -79,6 +79,8 @@ else
     List<Recipe> recipes;
 
     private bool disableAdd;
+
+    private Recipe currentlyEditingRecipe;
 
     async Task OpenRecipe(Guid recipeId) => 
                 await DialogService.OpenAsync<RecipeInfoCard>($"Recipe Information",
@@ -111,27 +113,41 @@ else
     }
     void CancelEdit(Recipe recipe)
     {
-        recipeGrid.CancelEditRow(recipe);
+        if (currentlyEditingRecipe is not null)
+        {
+            recipe.Name = currentlyEditingRecipe.Name;
+            recipe.Difficulty = currentlyEditingRecipe.Difficulty;
+            recipe.Time = currentlyEditingRecipe.Time;
+        }
 
-        // InteractionService.CancelRecipeTransaction(recipe);
+        recipeGrid.CancelEditRow(recipe);
 
         disableAdd = false;
     }
     async Task EditRow(Recipe recipe)
     {
+        currentlyEditingRecipe = new(recipe.Id, recipe.Name, recipe.Difficulty, recipe.Time);
+
         disableAdd = true;
+
         await recipeGrid.EditRow(recipe);
     }
 
     async Task SaveRow(Recipe recipe)
     {
         await recipeGrid.UpdateRow(recipe);
-        StateHasChanged();
     }
 
     async Task OnUpdateRow(Recipe recipe)
     {
         disableAdd = false;
         await InteractionService.UpsertRecipeAsync(recipe);
+    }
+
+    async Task DeleteRow(Recipe recipe)
+    {
+        recipes.Remove(recipe);
+        await InteractionService.RemoveRecipeAsync(recipe);
+        await recipeGrid.Reload();
     }
 }

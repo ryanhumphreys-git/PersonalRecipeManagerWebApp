@@ -3,30 +3,37 @@
 
 @inject NavigationManager NavigationManager
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Recipe Manager</a>
-    </div>
-</div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<RadzenHeader class="rz-h-auto">
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+        <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
+        <RadzenLabel Text="Recipe Manager" />
+    </RadzenStack>
+</RadzenHeader>
+<RadzenSidebar class="rz-mt-12" Responsive="false" Style="width: max-content">
+    <RadzenPanelMenu DisplayStyle="@(sidebarExpanded ? MenuItemDisplayStyle.IconAndText : MenuItemDisplayStyle.Icon)" ShowArrow="false">
+        <RadzenPanelMenuItem Icon="home" Path="" Text="Home" />
+        <RadzenPanelMenuItem Icon="warehouse" Text="Warehouse">
+            <RadzenPanelMenuItem Icon="warehouse" Path="managewarehouse/ingredients" Text="Ingredients" />
+            <RadzenPanelMenuItem Icon="warehouse" Path="managewarehouse/equipment" Text="Equipment" />
+        </RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Icon="kitchen" Text="My Kitchen">
+            <RadzenPanelMenuItem Icon="grocery" Path="mykitchen/ingredients" Text="Ingredients" />
+            <RadzenPanelMenuItem Icon="oven" Path=@($"/mykitchen/equipment?id={userId}") Text="Equipment" />
+        </RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Icon="list_alt" Path="@($"/recipes?id={userId}")" Text="My Recipes" />
+        <RadzenPanelMenuItem Icon="format_list_bulleted" Path="shoppinglist" Text="Shopping List" />
+        <RadzenPanelMenuItem Icon="info" Path=@($"/myinfo?id={userId}") Text="My Information" />
+    </RadzenPanelMenu>
+</RadzenSidebar>
 
-<RadzenPanelMenu >
-    <RadzenPanelMenuItem Icon="home" Path="" Text="Home"/>
-    <RadzenPanelMenuItem Icon="warehouse" Text="Warehouse">
-        <RadzenPanelMenuItem Icon="warehouse" Path="managewarehouse/ingredients" Text="Ingredients"/>
-        <RadzenPanelMenuItem Icon="warehouse" Path="managewarehouse/equipment" Text="Equipment" />
-    </RadzenPanelMenuItem>
-    <RadzenPanelMenuItem Icon="kitchen" Text="My Kitchen">
-        <RadzenPanelMenuItem Icon="grocery" Path="mykitchen/ingredients" Text="Ingredients"/>
-        <RadzenPanelMenuItem Icon="oven" Path=@($"/mykitchen/equipment?id={userId}") Text="Equipment"/>
-    </RadzenPanelMenuItem>
-    <RadzenPanelMenuItem Icon="list_alt" Path="@($"/recipes?id={userId}")" Text="My Recipes" />
-    <RadzenPanelMenuItem Icon="format_list_bulleted" Path="shoppinglist" Text="Shopping List"/>
-    <RadzenPanelMenuItem Icon="info" Path=@($"/myinfo?id={userId}") Text="My Information" />
-</RadzenPanelMenu>
+
+
+
 
 @code {
+    bool sidebarExpanded = false;
+
     private Guid userId = new Guid("A40773D4-A9BC-49E8-AD9C-7908B732AD57");
 
     private string? currentUrl;

@@ -12,20 +12,20 @@
 <h1>Equipment</h1>
 
 <RadzenDataGrid @ref="equipmentGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
-                AllowPaging="true" TItem="EquipmentDto" FilterMode="FilterMode.Simple" Data="@equipment" EditMode="DataGridEditMode.Single"
+                AllowPaging="true" TItem="KitchenEquipmentViewModel" FilterMode="FilterMode.Simple" Data="@equipment" EditMode="DataGridEditMode.Single"
                 RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
 
     <HeaderTemplate>
         <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add Additional Equipment" Click="@InsertRow" Disabled="@disableAdd" />
     </HeaderTemplate>
     <Columns>
-        <RadzenDataGridColumn TItem="EquipmentDto" Property="Name" Title="Name">
+        <RadzenDataGridColumn TItem="KitchenEquipmentViewModel" Property="Name" Title="Name">
             <EditTemplate Context="kitchenEquipmentDto">
-                <RadzenDropDown @bind-Value="kitchenEquipmentDto.Name" Data="@allEquipment" ValueProperty="Name" TextProperty="Name" Style="width:200px; display: block" Name="Name" aria-label="Enter Name" />
+                <RadzenDropDown @bind-Value="kitchenEquipmentDto.Id" Data="@allEquipment" ValueProperty="Id" TextProperty="Name" Style="width:200px; display: block" Name="Name" aria-label="Enter Name" />
                 <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
             </EditTemplate>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="EquipmentDto" Property="Quantity" Title="Quantity">
+        <RadzenDataGridColumn TItem="KitchenEquipmentViewModel" Property="Quantity" Title="Quantity">
             <EditTemplate Context="kitchenEquipmentDto">
                 <RadzenNumeric @bind-Value="kitchenEquipmentDto.Quantity" Style="width:100%" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select Quantity" }})" />
             </EditTemplate>
@@ -34,7 +34,7 @@
             <Template Context="kitchenEquipmentDto">
                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(kitchenEquipmentDto))" @onclick:stopPropagation="true">
                 </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Click="@((args) => DeleteRow(kitchenEquipmentDto))" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
                 </RadzenButton>
             </Template>
             <EditTemplate Context="kitchenEquipmentDto">
@@ -42,7 +42,7 @@
                 </RadzenButton>
                 <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => CancelEdit(kitchenEquipmentDto))" class="rz-my-1 rz-ms-1" aria-label="Cancel">
                 </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1"  aria-label="Delete">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Click="@((args) => DeleteRow(kitchenEquipmentDto))" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete">
                 </RadzenButton>
             </EditTemplate>
         </RadzenDataGridColumn>
@@ -56,12 +56,15 @@
     private Guid kitchenId = new Guid("E7C14A98-BF68-4D93-A05E-EAD425347E9F");
     [SupplyParameterFromQuery]
     private Guid Id { get; set; }
-    RadzenDataGrid<EquipmentDto> equipmentGrid;
-    List<EquipmentDto> equipment;
+    RadzenDataGrid<KitchenEquipmentViewModel> equipmentGrid;
+    List<KitchenEquipmentViewModel> equipment;
     List<Equipment> allEquipment;
     private User user { get; set; }
 
+    private KitchenEquipmentViewModel currentlyEditingEquipment;
+
     private bool disableAdd;
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -73,7 +76,7 @@
         allEquipment = await InteractionService.RetrieveAllWarehouseEquipmentAsync();
     }
 
-    async Task OnCreateRow(EquipmentDto equipment)
+    async Task OnCreateRow(KitchenEquipmentViewModel equipment)
     {
         disableAdd = false;
 
@@ -85,42 +88,51 @@
     async Task InsertRow()
     {
         disableAdd = true;
-        var equipment = new EquipmentDto();
+        var equipment = new KitchenEquipmentViewModel();
         await equipmentGrid.InsertRow(equipment);
     }
 
-    async Task CancelEdit(EquipmentDto equipment)
+    void CancelEdit(KitchenEquipmentViewModel equipment)
     {
-        var equipmentExists = await InteractionService.CheckIfKitchenHasEquipmentByIdAsync(equipment.Id);
-        KitchenEquipment currentEquipment;
-        if(equipmentExists)
+        if (currentlyEditingEquipment is not null)
         {
-            currentEquipment = await InteractionService.RetrieveKitchenEquipmentByIdAsync(equipment.Id);
+            equipment.Name = currentlyEditingEquipment.Name;
+            equipment.Quantity = currentlyEditingEquipment.Quantity;
         }
-        else
-        {
-            currentEquipment = new(Guid.NewGuid(), kitchenId, equipment.Id, equipment.Quantity);
-        }
+
+        disableAdd = false;
 
         equipmentGrid.CancelEditRow(equipment);
     }
 
-    async Task EditRow(EquipmentDto equipment)
+    async Task EditRow(KitchenEquipmentViewModel equipment)
     {
+        currentlyEditingEquipment = new()
+            {
+                Id = equipment.Id,
+                Name = equipment.Name,
+                Quantity = equipment.Quantity,
+            };
         await equipmentGrid.EditRow(equipment);
     }
 
-    async Task SaveRow(EquipmentDto equipment)
+    async Task SaveRow(KitchenEquipmentViewModel equipment)
     {
+        Equipment currentEquipment = await InteractionService.RetrieveWarehouseEquipmentByIdAsync(equipment.Id);
+        equipment.Name = currentEquipment.Name;
         await equipmentGrid.UpdateRow(equipment);
     }
 
-    async Task OnUpdateRow(EquipmentDto equipment)
+    async Task OnUpdateRow(KitchenEquipmentViewModel equipment)
     {
-        KitchenEquipment currentEquipment = new(Guid.NewGuid(), kitchenId, equipment.Id, equipment.Quantity);
+        await InteractionService.UpsertKitchenEquipmentAsync(kitchenId, equipment);
+    }
 
-        await InteractionService.UpsertKitchenEquipmentAsync(currentEquipment);
-        
+    async Task DeleteRow(KitchenEquipmentViewModel equipments)
+    {
+        equipment.Remove(equipments);
+        await InteractionService.RemoveKitchenEquipmentAsync(equipments);
+        await equipmentGrid.Reload();
     }
 }
 

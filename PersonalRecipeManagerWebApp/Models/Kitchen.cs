@@ -1,10 +1,14 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace PersonalRecipeManagerWebApp.Models;
 
 public class Kitchen
 {
     public Guid Id { get; set; }
-    public Guid? TypeId { get; set; }
+    public Guid TypeId { get; set; }
     public string Name { get; set; } = string.Empty;
+    [NotMapped]
+    public string TypeName { get; set; } = string.Empty;
     public ICollection<UserKitchen> UserKitchens { get; set; } = new List<UserKitchen>();
     public ICollection<KitchenEquipment> KitchenEquipment { get; set; } = new List<KitchenEquipment>();
     public ICollection<KitchenIngredients> KitchenIngredients { get; set; } = new List<KitchenIngredients>();
@@ -12,7 +16,7 @@ public class Kitchen
 
     public Kitchen() { }
 
-    public Kitchen(Guid id, Guid? typeId, string name)
+    public Kitchen(Guid id, Guid typeId, string name)
     { 
         Id = id;
         TypeId = typeId;

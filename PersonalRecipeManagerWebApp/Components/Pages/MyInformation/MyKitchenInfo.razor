@@ -21,7 +21,7 @@ else
         <RadzenStack Orientation="Orientation.Vertical" Gap="1rem" class="rz-p-4 rz-mb-6 rz-border-radius-1" Style="border: var(--rz-grid-cell-border);">
             <RadzenStack Gap="0.5rem" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
                 <RadzenLabel Text="Edit User Information:" />
-                <RadzenSwitch @bind-Value="disabled" Change="OnSwitchChange" />
+                <RadzenSwitch @bind-Value="disabled" />
             </RadzenStack>
         </RadzenStack>
         
@@ -58,17 +58,20 @@ else
                         <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
                     </EditTemplate>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn Title="kTypes">
+                <RadzenDataGridColumn TItem="Kitchen" Property="TypeName" Title="Type">
+                    <Template Context="kitchen">
+                        @kTypes.FirstOrDefault(t => t.Id == kitchen.TypeId)?.Name
+                    </Template>
                     <EditTemplate Context="kitchen">
                         <RadzenDropDown @bind-Value="kitchen.TypeId" ValueProperty="Id" TextProperty="Name" Data="@kTypes"
-                                        Style="width:100%" />
+                                        Style="width:100%" Name="TypeName"/>
                     </EditTemplate>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn Context="kitchen" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                     <Template Context="kitchen">
                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(kitchen))" @onclick:stopPropagation="true">
                         </RadzenButton>
-                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Click="@((args) => DeleteRow(kitchen))" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
                         </RadzenButton>
                     </Template>
                     <EditTemplate Context="kitchen">
@@ -76,7 +79,7 @@ else
                         </RadzenButton>
                         <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => CancelEdit(kitchen))" class="rz-my-1 rz-ms-1" aria-label="Cancel">
                         </RadzenButton>
-                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete">
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Click="@((args) => DeleteRow(kitchen))" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete">
                         </RadzenButton>
                     </EditTemplate>
                 </RadzenDataGridColumn>
@@ -90,7 +93,7 @@ else
 
 @code {
     private Guid kitchenId = new Guid("E7C14A98-BF68-4D93-A05E-EAD425347E9F");
-    bool disabled = false;
+    bool disabled = true;
     private User user { get; set; }
     [SupplyParameterFromQuery]
     private Guid Id { get; set; }
@@ -101,6 +104,8 @@ else
     private List<Kitchen> userKitchens;
 
     private bool disableAdd = false;
+
+    private Kitchen currentlyEditingKitchen;
 
     private async Task OnSwitchChange()
     {
@@ -118,7 +123,7 @@ else
 
         kTypes = await InteractionService.RetrieveAllKitchenTypesAsync();
 
-        userKitchens = await InteractionService.RetrieveAllUserKitchens(Id);
+        userKitchens = await InteractionService.RetrieveAllUserKitchensAsync(Id);
 
         if (user is null)
         {
@@ -144,16 +149,31 @@ else
 
     void CancelEdit(Kitchen kitchen)
     {
+        if (currentlyEditingKitchen is not null)
+        {
+            kitchen.Name = currentlyEditingKitchen.Name;
+        }
+
+        disableAdd = false;
         kitchenGrid.CancelEditRow(kitchen);
     }
 
     async Task EditRow(Kitchen kitchen)
     {
+        currentlyEditingKitchen = new(kitchen.Id, kitchen.TypeId, kitchen.Name);
+
+        disableAdd = true;
+
         await kitchenGrid.EditRow(kitchen);
     }
 
     async Task SaveRow(Kitchen kitchen)
     {
+        KitchenType kitchenType = await InteractionService.RetrieveKitchenTypeByTypeIdAsync(kitchen.TypeId);
+        kitchen.TypeName = kitchenType.Name;
+
+        disableAdd = false;
+
         await kitchenGrid.UpdateRow(kitchen);
     }
 
@@ -161,6 +181,13 @@ else
     {
         Kitchen currentKitchen = new(kitchen.Id, kitchen.TypeId, kitchen.Name);
         await InteractionService.UpsertKitchenAsync(kitchen);
+    }
+
+    async Task DeleteRow(Kitchen kitchen)
+    {
+        userKitchens.Remove(kitchen);
+        await InteractionService.RemoveKitchenAsync(kitchen);
+        await kitchenGrid.Reload();
     }
 }
 

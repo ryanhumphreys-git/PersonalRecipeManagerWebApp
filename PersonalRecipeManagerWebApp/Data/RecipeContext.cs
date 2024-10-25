@@ -124,7 +124,7 @@ public partial class RecipeContext : DbContext
 
         modelBuilder.Entity<KitchenEquipment>(user =>
         {
-            user.HasKey(e => e.AutoId).HasName("PK__KitchenT__6B232905AA4950B5");
+            user.HasKey(e => e.AutoId).HasName("PK__KitchenEquipment");
 
             user.ToTable("KitchenEquipment");
 
@@ -152,9 +152,8 @@ public partial class RecipeContext : DbContext
 
         modelBuilder.Entity<RecipeIngredients>(user =>
         {
-            user.HasKey(e => e.AutoId).HasName("PK__RecipeIn__6B232905C9FA5D74");
+            user.HasKey(e => new { e.RecipeId, e.IngredientId}).HasName("PK_RecipeId_IngredientId");
 
-            user.Property(e => e.AutoId).ValueGeneratedOnAdd();
             user.Property(e => e.Quantity).HasColumnType("decimal(18, 0)");
             user.Property(e => e.UnitOfMeasurement).HasMaxLength(50);
 
@@ -169,9 +168,8 @@ public partial class RecipeContext : DbContext
 
         modelBuilder.Entity<RecipeEquipment>(user =>
         {
-            user.HasKey(e => e.AutoId).HasName("PK__RecipeTo__6B232905A760B805");
+            user.HasKey(e => new { e.RecipeId, e.EquipmentId }).HasName("PK_RecipeId_EquipmentId");
 
-            user.Property(e => e.AutoId).ValueGeneratedOnAdd();
             user.Property(e => e.Quantity).HasColumnType("decimal(18, 0)");
 
             user.HasOne(d => d.Recipe).WithMany(p => p.RecipeEquipment)
@@ -192,8 +190,8 @@ public partial class RecipeContext : DbContext
             user.Property(e => e.Time).HasColumnType("decimal(18, 0)");
         });
         
-        modelBuilder.Entity<RecipeIngredientsDto>().HasNoKey().ToView(null);
-        modelBuilder.Entity<EquipmentDto>().HasNoKey().ToView(null);
+        modelBuilder.Entity<RecipeIngredientsViewModel>().HasNoKey().ToView(null);
+        modelBuilder.Entity<EquipmentViewModel>().HasNoKey().ToView(null);
 
         OnModelCreatingPartial(modelBuilder);
     }

@@ -21,7 +21,7 @@ builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingServerAuthenticationStateProvider>();
 
-builder.Services.AddScoped<IDataBroker, SqlDataBroker>();
+builder.Services.AddScoped<IStorageBroker, StorageBroker>();
 builder.Services.AddScoped<IHandleInteractionService, HandleInteractionService>();
 
 builder.Services.AddAuthorization();
@@ -46,9 +46,6 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
 
 builder.Services.AddRadzenComponents();
 

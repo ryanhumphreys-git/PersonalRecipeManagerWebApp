@@ -6,6 +6,7 @@
 @using PersonalRecipeManagerWebApp.Services
 @inject NavigationManager NavigationManager
 @inject IHandleInteractionService InteractionService
+@inject DialogService DialogService
 
 <PageTitle>Equipment Warehouse</PageTitle>
 
@@ -34,7 +35,7 @@
             <Template Context="equipment">
                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(equipment))" @onclick:stopPropagation="true">
                 </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Click="@((args) => DeleteRow(equipment))"  Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
                 </RadzenButton>
             </Template>
             <EditTemplate Context="equipment">
@@ -42,7 +43,7 @@
                 </RadzenButton>
                 <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => CancelEdit(equipment))" class="rz-my-1 rz-ms-1" aria-label="Cancel">
                 </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1"  aria-label="Delete">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Click="@((args) => DeleteRow(equipment))" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete">
                 </RadzenButton>
             </EditTemplate>
         </RadzenDataGridColumn>
@@ -55,6 +56,8 @@
 @code {
     RadzenDataGrid<Equipment> equipmentGrid;
     List<Equipment> equipment;
+
+    private Equipment currentlyEditingEquipment;
 
     private bool disableAdd;
     protected override async Task OnInitializedAsync()
@@ -78,23 +81,46 @@
     }
     void CancelEdit(Equipment equipment)
     {
-        equipmentGrid.CancelEditRow(equipment);
+        if (currentlyEditingEquipment is not null)
+        {
+            equipment.Name = currentlyEditingEquipment.Name;
+            equipment.Cost = currentlyEditingEquipment.Cost;
+        }
 
-        // InteractionService.CancelWarehouseEquipmentTransaction(equipment);
+        disableAdd = false;
+
+        equipmentGrid.CancelEditRow(equipment);
     }
     async Task EditRow(Equipment equipment)
     {
+        currentlyEditingEquipment = new(equipment.Id, equipment.Name, equipment.Cost);
+
+        disableAdd = true;
+
         await equipmentGrid.EditRow(equipment);
     }
 
     async Task SaveRow(Equipment equipment)
     {
+        disableAdd = false;
+
         await equipmentGrid.UpdateRow(equipment);
     }
 
     async Task OnUpdateRow(Equipment equipment)
     {
         await InteractionService.UpsertWarehouseEquipmentAsync(equipment);
+    }
+
+    async Task DeleteRow(Equipment equipments)
+    {
+        var result = await DialogService.Confirm("Are you sure?", "Delete Row", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+        if (result.HasValue && result.Value)
+        {
+            equipment.Remove(equipments);
+            await InteractionService.RemoveWarehouseEquipmentAsync(equipments);
+            await equipmentGrid.Reload();
+        }
     }
 }
 

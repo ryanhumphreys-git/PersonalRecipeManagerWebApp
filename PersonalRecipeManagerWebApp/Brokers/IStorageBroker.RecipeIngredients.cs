@@ -1,0 +1,14 @@
+﻿using PersonalRecipeManagerWebApp.Models;
+
+namespace PersonalRecipeManagerWebApp.Brokers
+{
+    public partial interface IStorageBroker
+    {
+        ValueTask<RecipeIngredients> InsertRecipeIngredientsAsync(RecipeIngredients recipeIngredients);
+        ValueTask<List<RecipeIngredients>> SelectAllRecipeIngredientsAsync();
+        ValueTask<RecipeIngredients> SelectRecipeIngredientsByIdAsync(Guid[] ids);
+        ValueTask<RecipeIngredients> UpdateRecipeIngredientsAsync(RecipeIngredients recipeIngredients);
+        ValueTask<RecipeIngredients> DeleteRecipeIngredientsAsync(RecipeIngredients recipeIngredients);
+        ValueTask<List<RecipeEquipmentViewModel>> SelectRecipeEquipmentViewModelByRecipeIdAsync(Guid id);
+    }
+}

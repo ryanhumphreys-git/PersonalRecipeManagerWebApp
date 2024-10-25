@@ -39,7 +39,7 @@
             <Template Context="ingredient">
                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRow(ingredient))" @onclick:stopPropagation="true">
                 </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Click="@((args) => DeleteRow(ingredient))" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
                 </RadzenButton>
             </Template>
             <EditTemplate Context="ingredient">
@@ -47,7 +47,7 @@
                 </RadzenButton>
                 <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => CancelEdit(ingredient))" class="rz-my-1 rz-ms-1" aria-label="Cancel">
                 </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1"  aria-label="Delete">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Click="@((args) => DeleteRow(ingredient))" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete">
                 </RadzenButton>
             </EditTemplate>
         </RadzenDataGridColumn>
@@ -60,6 +60,8 @@
 @code {
     RadzenDataGrid<Ingredients> ingredientsGrid;
     List<Ingredients> ingredients;
+
+    private Ingredients currentlyEditingIngredient;
 
     private bool disableAdd;
     protected override async Task OnInitializedAsync()
@@ -84,12 +86,23 @@
     }
     void CancelEdit(Ingredients ingredient)
     {
-        ingredientsGrid.CancelEditRow(ingredient);
+        if (currentlyEditingIngredient is not null)
+        {
+            ingredient.Name = currentlyEditingIngredient.Name;
+            ingredient.Cost = currentlyEditingIngredient.Cost;
+            ingredient.UnitOfMeasurement = currentlyEditingIngredient.UnitOfMeasurement;
+        }
 
-        // InteractionService.CancelWarehouseIngredientTransaction(ingredient);
+        disableAdd = false;
+
+        ingredientsGrid.CancelEditRow(ingredient);
     }
     async Task EditRow(Ingredients ingredient)
     {
+        currentlyEditingIngredient = new(ingredient.Id, ingredient.Name, ingredient.Cost, ingredient.UnitOfMeasurement);
+
+        disableAdd = true;
+
         await ingredientsGrid.EditRow(ingredient);
     }
 
@@ -101,5 +114,12 @@
     async Task OnUpdateRow(Ingredients ingredient)
     {
         await InteractionService.UpsertWarehouseIngredientsAsync(ingredient);
+    }
+
+    async Task DeleteRow(Ingredients ingredient)
+    {
+        ingredients.Remove(ingredient);
+        await InteractionService.RemoveWarehouseIngredientsAsync(ingredient);
+        await ingredientsGrid.Reload();
     }
 }
