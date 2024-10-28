@@ -2,7 +2,6 @@ namespace PersonalRecipeManagerWebApp.Models;
 
 public partial class KitchenEquipment
 {
-    public Guid AutoId { get; set; }
     public Guid KitchenId { get; set; }
     public Guid EquipmentId { get; set; }
     public double Quantity { get; set; }
@@ -11,9 +10,8 @@ public partial class KitchenEquipment
 
     public KitchenEquipment() {}
 
-    public KitchenEquipment(Guid autoId, Guid kitchenId, Guid toolAndEquipmentId, double quantity)
+    public KitchenEquipment(Guid kitchenId, Guid toolAndEquipmentId, double quantity)
     {
-        AutoId = autoId;
         KitchenId = kitchenId;
         EquipmentId = toolAndEquipmentId;
         Quantity = quantity;

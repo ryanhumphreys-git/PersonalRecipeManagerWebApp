@@ -9,8 +9,8 @@ namespace PersonalRecipeManagerWebApp.Brokers
             await InsertAsync(ingredient);
         public async ValueTask<List<KitchenIngredients>> SelectAllKitchenIngredientsAsync() =>
             await SelectAllAsync<KitchenIngredients>();
-        public async ValueTask<KitchenIngredients> SelectKitchenIngredientByIdAsync(Guid ingredientId) =>
-            await SelectAsync<KitchenIngredients>(ingredientId);
+        public async ValueTask<KitchenIngredients> SelectKitchenIngredientByIdAsync(Guid kitchenId, Guid ingredientId) =>
+            await SelectAsync<KitchenIngredients>(kitchenId, ingredientId);
         public async ValueTask<KitchenIngredients> UpdateKitchenIngredientAsync(KitchenIngredients ingredient) =>
             await UpdateAsync(ingredient);
         public async ValueTask<KitchenIngredients> DeleteKitchenIngredientsAsync(KitchenIngredients ingredient) =>

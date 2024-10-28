@@ -8,11 +8,12 @@
 @inject IHandleInteractionService InteractionService
 
 <PageTitle>Equipment Inventory</PageTitle>
+<RadzenDialog/>
 
 <h1>Equipment</h1>
 
 <RadzenDataGrid @ref="equipmentGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
-                AllowPaging="true" TItem="KitchenEquipmentViewModel" FilterMode="FilterMode.Simple" Data="@equipment" EditMode="DataGridEditMode.Single"
+                AllowPaging="true" TItem="KitchenEquipmentViewModel" FilterMode="FilterMode.Simple" Data="@userEquipment" EditMode="DataGridEditMode.Single"
                 RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
 
     <HeaderTemplate>
@@ -21,7 +22,7 @@
     <Columns>
         <RadzenDataGridColumn TItem="KitchenEquipmentViewModel" Property="Name" Title="Name">
             <EditTemplate Context="kitchenEquipmentDto">
-                <RadzenDropDown @bind-Value="kitchenEquipmentDto.Id" Data="@allEquipment" ValueProperty="Id" TextProperty="Name" Style="width:200px; display: block" Name="Name" aria-label="Enter Name" />
+                <RadzenDropDown @bind-Value="kitchenEquipmentDto.Id" Data="@FilteredEquipmentList" ValueProperty="Id" TextProperty="Name" Style="width:200px; display: block" Name="Name" aria-label="Enter Name" />
                 <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
             </EditTemplate>
         </RadzenDataGridColumn>
@@ -53,86 +54,6 @@
 
 
 @code {
-    private Guid kitchenId = new Guid("E7C14A98-BF68-4D93-A05E-EAD425347E9F");
-    [SupplyParameterFromQuery]
-    private Guid Id { get; set; }
-    RadzenDataGrid<KitchenEquipmentViewModel> equipmentGrid;
-    List<KitchenEquipmentViewModel> equipment;
-    List<Equipment> allEquipment;
-    private User user { get; set; }
-
-    private KitchenEquipmentViewModel currentlyEditingEquipment;
-
-    private bool disableAdd;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-
-        user = await InteractionService.RetrieveUserInformationByIdAsync(Id);
-
-        equipment = await InteractionService.RetrieveKitchenEquipmentDtoByKitchenIdAsync(kitchenId);
-
-        allEquipment = await InteractionService.RetrieveAllWarehouseEquipmentAsync();
-    }
-
-    async Task OnCreateRow(KitchenEquipmentViewModel equipment)
-    {
-        disableAdd = false;
-
-        KitchenEquipment newEquipment = new(Guid.NewGuid(), kitchenId, equipment.Id, equipment.Quantity);
-
-        await InteractionService.AddKitchenEquipmentAsync(newEquipment);
-    }
-
-    async Task InsertRow()
-    {
-        disableAdd = true;
-        var equipment = new KitchenEquipmentViewModel();
-        await equipmentGrid.InsertRow(equipment);
-    }
-
-    void CancelEdit(KitchenEquipmentViewModel equipment)
-    {
-        if (currentlyEditingEquipment is not null)
-        {
-            equipment.Name = currentlyEditingEquipment.Name;
-            equipment.Quantity = currentlyEditingEquipment.Quantity;
-        }
-
-        disableAdd = false;
-
-        equipmentGrid.CancelEditRow(equipment);
-    }
-
-    async Task EditRow(KitchenEquipmentViewModel equipment)
-    {
-        currentlyEditingEquipment = new()
-            {
-                Id = equipment.Id,
-                Name = equipment.Name,
-                Quantity = equipment.Quantity,
-            };
-        await equipmentGrid.EditRow(equipment);
-    }
-
-    async Task SaveRow(KitchenEquipmentViewModel equipment)
-    {
-        Equipment currentEquipment = await InteractionService.RetrieveWarehouseEquipmentByIdAsync(equipment.Id);
-        equipment.Name = currentEquipment.Name;
-        await equipmentGrid.UpdateRow(equipment);
-    }
-
-    async Task OnUpdateRow(KitchenEquipmentViewModel equipment)
-    {
-        await InteractionService.UpsertKitchenEquipmentAsync(kitchenId, equipment);
-    }
-
-    async Task DeleteRow(KitchenEquipmentViewModel equipments)
-    {
-        equipment.Remove(equipments);
-        await InteractionService.RemoveKitchenEquipmentAsync(equipments);
-        await equipmentGrid.Reload();
-    }
+   
 }
 

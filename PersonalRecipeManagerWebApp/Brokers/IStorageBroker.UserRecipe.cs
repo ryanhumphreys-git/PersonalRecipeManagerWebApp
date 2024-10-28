@@ -6,5 +6,6 @@ namespace PersonalRecipeManagerWebApp.Brokers
     {
         ValueTask<UserRecipes> InsertUserRecipeAsync(UserRecipes recipe);
         ValueTask<List<UserRecipes>> SelectUserRecipesByIdAsync(Guid recipeId);
+        ValueTask DeleteUserRecipesByIdAsync(Guid recipeId);
     }
 }

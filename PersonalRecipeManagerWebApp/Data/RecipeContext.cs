@@ -106,11 +106,9 @@ public partial class RecipeContext : DbContext
 
         modelBuilder.Entity<KitchenIngredients>(user =>
         {
-            user.HasKey(e => e.AutoId).HasName("PK__KitchenI__6B2329058B1AE66A");
-
+            user.HasKey(e => new { e.KitchenId, e.IngredientId }).HasName("PK_KitchenId_IngredientId");
             user.ToTable("KitchenIngredients");
 
-            user.Property(e => e.AutoId).ValueGeneratedNever();
             user.Property(e => e.Quantity).HasColumnType("decimal(18, 0)");
 
             user.HasOne(d => d.Ingredient).WithMany(p => p.KitchenIngredients)
@@ -124,11 +122,10 @@ public partial class RecipeContext : DbContext
 
         modelBuilder.Entity<KitchenEquipment>(user =>
         {
-            user.HasKey(e => e.AutoId).HasName("PK__KitchenEquipment");
+            user.HasKey(e => new { e.KitchenId, e.EquipmentId }).HasName("PK_KitchenId_EquipmentID");
 
             user.ToTable("KitchenEquipment");
 
-            user.Property(e => e.AutoId).ValueGeneratedNever();
             user.Property(e => e.Quantity).HasColumnType("decimal(18, 0)");
 
             user.HasOne(d => d.Kitchen).WithMany(p => p.KitchenEquipment)

@@ -7,8 +7,10 @@ namespace PersonalRecipeManagerWebApp.Brokers
     {
         public async ValueTask<User> SelectUserInformationByIdAsync(Guid userId) =>
             await SelectAsync<User>(userId);
-        public async ValueTask<UserKitchen> SelectUserKitchenByIdAsync(Guid kitchenId) =>
-            await SelectAsync<UserKitchen>(kitchenId);
+        public async ValueTask<UserKitchen> SelectUserKitchenByIdAsync(Guid kitchenId)
+        {
+            return await db.UserKitchens.Where(uk => uk.KitchenId == kitchenId).FirstOrDefaultAsync();
+        }
         public async ValueTask<List<Kitchen>> SelectAllUserKitchensAsync(Guid id)
         {
             return await db.Kitchen

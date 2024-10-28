@@ -40,6 +40,36 @@ BEGIN TRY
 	ALTER TABLE RecipeEquipment
 	ADD CONSTRAINT PK_RecipeId_EquipmentId PRIMARY KEY (RecipeId, EquipmentId);
 
+	ALTER TABLE KitchenEquipment
+	DROP CONSTRAINT PK__KitchenEquipment;
+
+	ALTER TABLE KitchenEquipment
+	DROP COLUMN AutoId;
+
+	ALTER TABLE KitchenEquipment
+	ALTER COLUMN KitchenId UNIQUEIDENTIFIER NOT NULL;
+
+	ALTER TABLE KitchenEquipment
+	ALTER COLUMN EquipmentId UNIQUEIDENTIFIER NOT NULL;
+
+	ALTER TABLE KitchenEquipment
+	ADD CONSTRAINT PK_KitchenId_EquipmentId PRIMARY KEY (KitchenId, EquipmentId);
+
+	ALTER TABLE KitchenIngredients
+	DROP CONSTRAINT PK__KitchenI__6B2329058B1AE66A;
+
+	ALTER TABLE KitchenIngredients
+	DROP COLUMN AutoId;
+
+	ALTER TABLE KitchenIngredients
+	ALTER COLUMN KitchenId UNIQUEIDENTIFIER NOT NULL;
+
+	ALTER TABLE KitchenIngredients
+	ALTER COLUMN IngredientId UNIQUEIDENTIFIER NOT NULL;
+
+	ALTER TABLE KitchenIngredients
+	ADD CONSTRAINT PK_KitchenId_IngredientId PRIMARY KEY (KitchenId, IngredientId);
+
     PRINT '.... DONE'
 	PRINT ''
 

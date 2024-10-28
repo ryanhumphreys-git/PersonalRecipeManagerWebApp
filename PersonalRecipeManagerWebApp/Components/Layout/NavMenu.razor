@@ -26,33 +26,3 @@
         <RadzenPanelMenuItem Icon="info" Path=@($"/myinfo?id={userId}") Text="My Information" />
     </RadzenPanelMenu>
 </RadzenSidebar>
-
-
-
-
-
-@code {
-    bool sidebarExpanded = false;
-
-    private Guid userId = new Guid("A40773D4-A9BC-49E8-AD9C-7908B732AD57");
-
-    private string? currentUrl;
-
-    protected override void OnInitialized()
-    {
-        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        NavigationManager.LocationChanged += OnLocationChanged;
-    }
-
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
-        StateHasChanged();
-    }
-
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= OnLocationChanged;
-    }
-}
-

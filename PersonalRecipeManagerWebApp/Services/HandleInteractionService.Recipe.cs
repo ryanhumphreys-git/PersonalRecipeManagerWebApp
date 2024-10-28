@@ -28,8 +28,8 @@ namespace PersonalRecipeManagerWebApp.Services
         }
         public async ValueTask RemoveRecipeAsync(Recipe recipe)
         {
+            await _broker.DeleteUserRecipesByIdAsync(recipe.Id);
             await _broker.DeleteRecipeAsync(recipe);
         }
-
     }
 }

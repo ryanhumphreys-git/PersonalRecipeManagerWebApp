@@ -14,7 +14,6 @@ namespace PersonalRecipeManagerWebApp.Services
         }
         public async ValueTask<UserKitchen> RetrieveUserKitchenByIdAsync(Guid id)
         {
-
             return await _broker.SelectUserKitchenByIdAsync(id);
         }
         public async ValueTask<List<Recipe>> RetrieveUserRecipesByIdAsync(Guid userId)

@@ -14,19 +14,18 @@ namespace PersonalRecipeManagerWebApp.Services
 
             return await _broker.SelectKitchenEquipmentViewModelByKitchenIdAsync(id);
         }
-        public async ValueTask<KitchenEquipment> RetrieveKitchenEquipmentByIdAsync(Guid id)
+        public async ValueTask<KitchenEquipment> RetrieveKitchenEquipmentByIdAsync(Guid kitchenId, Guid equipmentId)
         {
-
-            return await _broker.SelectKitchenEquipmentByIdAsync(id);
+            return await _broker.SelectKitchenEquipmentByIdAsync(kitchenId, equipmentId);
 
         }
         public async ValueTask UpsertKitchenEquipmentAsync(Guid kitchenId, KitchenEquipmentViewModel equipment)
         {
-            KitchenEquipment equipmentExists = await _broker.SelectKitchenEquipmentByIdAsync(equipment.Id);
+            KitchenEquipment equipmentExists = await _broker.SelectKitchenEquipmentByIdAsync(kitchenId, equipment.Id);
 
             if (equipmentExists is null)
             {
-                equipmentExists = new(Guid.NewGuid(), kitchenId, equipment.Id, equipment.Quantity);
+                equipmentExists = new(kitchenId, equipment.Id, equipment.Quantity);
                 await _broker.InsertKitchenEquipmentAsync(equipmentExists);
             }
             else
@@ -37,14 +36,14 @@ namespace PersonalRecipeManagerWebApp.Services
                 await _broker.UpdateKitchenEquipmentAsync(equipmentExists);
             }
         }
-        public async ValueTask RemoveKitchenEquipmentAsync(KitchenEquipmentViewModel equipment)
+        public async ValueTask RemoveKitchenEquipmentAsync(Guid kitchenId, KitchenEquipmentViewModel equipment)
         {
-            KitchenEquipment editEquipment = await _broker.SelectKitchenEquipmentByIdAsync(equipment.Id);
+            KitchenEquipment editEquipment = await _broker.SelectKitchenEquipmentByIdAsync(kitchenId, equipment.Id);
             await _broker.DeleteKitchenEquipmentAsync(editEquipment);
         }
-        public async ValueTask<bool> CheckIfKitchenHasEquipmentByIdAsync(Guid id)
+        public async ValueTask<bool> CheckIfKitchenHasEquipmentByIdAsync(Guid kitchenId, Guid equipmentId)
         {
-            var hasEquipment = await _broker.SelectKitchenEquipmentByIdAsync(id);
+            var hasEquipment = await _broker.SelectKitchenEquipmentByIdAsync(kitchenId, equipmentId);
             return hasEquipment is not null;
         }
 

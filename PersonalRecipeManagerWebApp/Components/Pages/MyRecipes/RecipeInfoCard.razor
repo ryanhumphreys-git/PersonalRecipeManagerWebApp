@@ -8,6 +8,9 @@
 @inject DialogService dialogService
 @inject NavigationManager NavigationManager
 
+<PageTitle>Recipe Info Card</PageTitle>
+<RadzenDialog/>
+
 @if (isLoading)
 {
     <p>Loading...</p>
@@ -124,7 +127,6 @@ else
                             </EditTemplate>
                         </RadzenDataGridColumn>
 
-
                         <RadzenDataGridColumn Width="50px" Context="recipeEquipmentDto" Filterable="false" Sortable="false" TextAlign="TextAlign.Right"
                                               Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
                             <Template Context="recipeEquipmentDto">
@@ -151,182 +153,9 @@ else
                     </Columns>
                 </RadzenDataGrid>
             </RadzenStack>
-        
         </RadzenStack>
         <RadzenStack Visible="@ShowClose" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton Click="@((args) => dialogService.Close(true))" Variant="Variant.Flat" Text="Close" Style="width: 120px" />
         </RadzenStack>
-
     </RadzenStack>
-}
-
-@code {
-    [Parameter] public Guid RecipeId { get; set; }
-    [Parameter] public bool ShowClose { get; set; } = true;
-
-    private bool isLoading = true;
-    private bool disableAdd = false;
-
-    Recipe recipe;
-
-    List<RecipeIngredientsViewModel> recipeIngredients;
-    List<Ingredients> allIngredients;
-
-    List<RecipeEquipmentViewModel> recipeEquipment;
-    List<Equipment> allEquipment;
-
-    RadzenDataGrid<RecipeEquipmentViewModel> equipmentGrid;
-    RadzenDataGrid<RecipeIngredientsViewModel> ingredientsGrid;
-
-    private RecipeIngredientsViewModel currentlyEditingIngredient;
-    private RecipeEquipmentViewModel currentlyEditingEquipment;
-
-
-    protected override async Task OnParametersSetAsync()
-    {
-        isLoading = true;
-
-        recipe = await InteractionService.RetrieveRecipeByIdAsync(RecipeId);
-
-        recipeIngredients = await InteractionService.RetrieveRecipeIngredientsDtoByRecipeIdAsync(RecipeId);
-        allIngredients = await InteractionService.RetrieveAllWarehouseIngredientsAsync();
-
-        recipeEquipment = await InteractionService.RetrieveRecipeEquipmentDtoByRecipeIdAsync(RecipeId);
-        allEquipment = await InteractionService.RetrieveAllWarehouseEquipmentAsync();
-
-        isLoading = false;
-
-        await base.OnParametersSetAsync();
-    }
-
-    async Task OnCreateRowEquipment(RecipeEquipmentViewModel equipment)
-    {
-        disableAdd = false;
-
-        RecipeEquipment newEquipment = new(RecipeId, equipment.Id, equipment.Quantity);
-
-        await InteractionService.AddRecipeEquipmentAsync(newEquipment);
-    }
-
-    async Task InsertRowEquipment()
-    {
-        disableAdd = true;
-        var equipment = new RecipeEquipmentViewModel();
-        await equipmentGrid.InsertRow(equipment);
-    }
-
-    void CancelEditEquipment(RecipeEquipmentViewModel equipment)
-    {
-        if (currentlyEditingEquipment is not null)
-        {
-            equipment.Name = currentlyEditingEquipment.Name;
-            equipment.Quantity = currentlyEditingEquipment.Quantity;
-        }
-
-        disableAdd = false;
-
-        equipmentGrid.CancelEditRow(equipment);
-    }
-
-    async Task EditRowEquipment(RecipeEquipmentViewModel equipment)
-    {
-        currentlyEditingEquipment = new()
-            {
-                Id = equipment.Id,
-                Name = equipment.Name,
-                Quantity = equipment.Quantity,
-            };
-
-        disableAdd = true;
-
-        await equipmentGrid.EditRow(equipment);
-    }
-
-    async Task SaveRowEquipment(RecipeEquipmentViewModel equipment)
-    {
-        Equipment currentEquipment = await InteractionService.RetrieveWarehouseEquipmentByIdAsync(equipment.Id);
-        equipment.Name = currentEquipment.Name;
-
-        disableAdd = false;
-
-        await equipmentGrid.UpdateRow(equipment);
-    }
-
-    async Task OnUpdateRowEquipment(RecipeEquipmentViewModel equipment)
-    {
-        await InteractionService.UpsertRecipeEquipmentAsync(RecipeId, equipment);
-    }
-
-    async Task DeleteEquipmentRow(RecipeEquipmentViewModel equipment)
-    {
-        recipeEquipment.Remove(equipment);
-        await InteractionService.RemoveRecipeEquipmentAsync(RecipeId, equipment);
-        await equipmentGrid.Reload();
-    }
-
-
-    async Task OnCreateRowIngredient(RecipeIngredientsViewModel ingredient)
-    {
-        disableAdd = false;
-
-        RecipeIngredients newIngredient = new(RecipeId, ingredient.Id, ingredient.Quantity, ingredient.UnitOfMeasurement);
-
-        await InteractionService.AddRecipeIngredientsAsync(newIngredient);
-    }
-
-    async Task InsertRowIngredient()
-    {
-        disableAdd = true;
-        var ingredient = new RecipeIngredientsViewModel();
-        await ingredientsGrid.InsertRow(ingredient);
-    }
-    void CancelEditIngredient(RecipeIngredientsViewModel ingredient)
-    {
-        if (currentlyEditingIngredient is not null)
-        {
-            ingredient.Name = currentlyEditingIngredient.Name;
-            ingredient.Quantity = currentlyEditingIngredient.Quantity;
-            ingredient.UnitOfMeasurement = currentlyEditingIngredient.UnitOfMeasurement;
-        }
-
-        disableAdd = false;
-
-        ingredientsGrid.CancelEditRow(ingredient);
-    }
-    async Task EditRowIngredient(RecipeIngredientsViewModel ingredient)
-    {
-        currentlyEditingIngredient = new()
-            {
-                Id = ingredient.Id,
-                Name = ingredient.Name,
-                Quantity = ingredient.Quantity,
-                UnitOfMeasurement = ingredient.UnitOfMeasurement
-            };
-
-        disableAdd = true;
-
-        await ingredientsGrid.EditRow(ingredient);
-    }
-
-    async Task SaveRowIngredient(RecipeIngredientsViewModel ingredient)
-    {
-        Ingredients currentIngredient = await InteractionService.RetrieveWarehouseIngredientByIdAsync(ingredient.Id);
-        ingredient.Name = currentIngredient.Name;
-
-        disableAdd = false;
-
-        await ingredientsGrid.UpdateRow(ingredient);
-    }
-
-    async Task OnUpdateRowIngredient(RecipeIngredientsViewModel ingredient)
-    {
-        await InteractionService.UpsertRecipeIngredientAsync(RecipeId, ingredient);
-    }
-
-    async Task DeleteIngredientRow(RecipeIngredientsViewModel ingredient)
-    {
-        recipeIngredients.Remove(ingredient);
-        await InteractionService.RemoveRecipeIngredientAsync(RecipeId, ingredient);
-        await ingredientsGrid.Reload();
-    }
 }

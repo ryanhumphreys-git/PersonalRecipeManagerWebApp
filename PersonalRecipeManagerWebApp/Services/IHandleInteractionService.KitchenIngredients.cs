@@ -6,10 +6,10 @@ namespace PersonalRecipeManagerWebApp.Services
     {
         public ValueTask AddKitchenIngredientsAsync(KitchenIngredients ingredients);
         public ValueTask<List<KitchenIngredientsViewModel>> RetrieveKitchenIngredientsDtoByKitchenIdAsync(Guid id);
-        public ValueTask<KitchenIngredients> RetrieveKitchenIngredientByIdAsync(Guid id);
+        public ValueTask<KitchenIngredients> RetrieveKitchenIngredientByIdAsync(Guid kitchenId, Guid ingredientId);
         public ValueTask UpsertKitchenIngredientsAsync(Guid kitchenId, KitchenIngredientsViewModel ingredients);
-        public ValueTask RemoveKitchenIngredientsAsync(KitchenIngredientsViewModel ingredients);
-        public ValueTask<bool> CheckIfKitchenHasIngredientByIdAsync(Guid id);
+        public ValueTask RemoveKitchenIngredientsAsync(Guid kitchenId, KitchenIngredientsViewModel ingredients);
+        public ValueTask<bool> CheckIfKitchenHasIngredientByIdAsync(Guid kitchenId, Guid ingredientId);
 
     }
 }
