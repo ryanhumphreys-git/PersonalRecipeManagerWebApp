@@ -1,13 +1,48 @@
 @page "/managewarehouse"
+@rendermode InteractiveServer
+@using PersonalRecipeManagerWebApp.Brokers.Apis
+@using PersonalRecipeManagerWebApp.Models.FoodDataApi
+@using PersonalRecipeManagerWebApp.Services.ApiCallHandler
+@inject IHandleFdcNutritionApi broker
+@inject IHttpClientFactory factory
 
 <PageTitle>Manage Warehouse</PageTitle>
 
-<p>use the navigation to access the ingredients and equipment warehouses</p>
+<RadzenStack Orientation="Orientation.Horizontal" Wrap="FlexWrap.Wrap" Gap="1rem">
+    <RadzenFormField Text="Name" Variant="Variant.Outlined" Style="flex: 1;">
+        <RadzenTextBox @bind-Value="@searchName" />
+    </RadzenFormField>
+</RadzenStack>
 
-<button>
-    <a href="managewarehouse/ingredients">Ingredients</a>
-</button>
+<br />
 
-<button>
-    <a href="managewarehouse/equipment">Equipment</a>
-</button>
+<RadzenButton Text="search" Click="@OnClick" />
+
+<p>@displayName</p>
+
+@if(variableOne != null)
+{
+    <p>Id=@variableOne[0].fdcId</p>
+}
+
+@code{
+    private string searchName = "beef";
+    private int displayName;
+    private HttpClient httpClient = new HttpClient();
+
+    List<ListResultFood> variableOne { get; set; }
+
+    private async Task OnInitializedAsync()
+    {
+        // var broker = factory.CreateClient("FoodApi");
+    }
+
+    private async Task OnClick()
+    {
+        // variableOne = await httpClient.GetFromJsonAsync<List<ListResultFood>>("https://api.nal.usda.gov/fdc/v1/foods/list?dataType=Branded&pageSize=1&pageNumber=2&api_key=GIaRwiLAlBljfBY4q2GbRE1KT9rnXEuKeZNwo0GN");
+        // List<SearchResultFood> newVar = await broker.GetFoodSearchResultsByQueryExpression(searchName);
+        // displayName = newVar[0].fdcId;
+        variableOne = await broker.GetFoodListByPageNumberAndSize(1, 1);
+       // Console.WriteLine(variableOne[0].fdcId);
+    }
+}

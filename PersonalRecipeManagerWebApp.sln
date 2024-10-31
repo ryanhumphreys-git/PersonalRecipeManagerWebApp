@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonalRecipeManagerWebApp", "PersonalRecipeManagerWebApp\PersonalRecipeManagerWebApp.csproj", "{7C92245E-B223-41C0-8C43-2557E47E5F85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PersonalRecipeManagerWebApp", "PersonalRecipeManagerWebApp\PersonalRecipeManagerWebApp.csproj", "{7C92245E-B223-41C0-8C43-2557E47E5F85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonalRecipeManagerWebApp.Client", "PersonalRecipeManagerWebApp.Client\PersonalRecipeManagerWebApp.Client.csproj", "{84E9D962-BDA8-438B-BF3C-750D013FC84D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PersonalRecipeManagerWebApp.Client", "PersonalRecipeManagerWebApp.Client\PersonalRecipeManagerWebApp.Client.csproj", "{84E9D962-BDA8-438B-BF3C-750D013FC84D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

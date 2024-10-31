@@ -8,6 +8,10 @@ using PersonalRecipeManagerWebApp.Data;
 using PersonalRecipeManagerWebApp.Brokers;
 using Radzen;
 using PersonalRecipeManagerWebApp.Services;
+using PersonalRecipeManagerWebApp.Brokers.Apis;
+using FluentAssertions.Common;
+using RESTFulSense.Clients;
+using PersonalRecipeManagerWebApp.Services.ApiCallHandler;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +27,12 @@ builder.Services.AddScoped<AuthenticationStateProvider, PersistingServerAuthenti
 
 builder.Services.AddScoped<IStorageBroker, StorageBroker>();
 builder.Services.AddScoped<IHandleInteractionService, HandleInteractionService>();
+builder.Services.AddScoped<IFdcNutritionApiBroker, FdcNutritionApiBroker>();
+builder.Services.AddScoped<IHandleFdcNutritionApi, HandleFdcNutritionApi>();
+builder.Services.AddScoped<IHandleMealDbApi, HandleMealDbApi>();
+builder.Services.AddScoped<IMealDbRecipeBroker, MealDbRecipeBroker>();
+
+builder.Services.AddHttpClient<IRESTFulApiFactoryClient, RESTFulApiFactoryClient>(client => client.BaseAddress = new Uri("https://www.themealdb.com/api/json/v1/1/"));
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>

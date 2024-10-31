@@ -9,8 +9,6 @@
 @inject NavigationManager NavigationManager
 
 <PageTitle>Recipe Info Card</PageTitle>
-<RadzenDialog/>
-
 @if (isLoading)
 {
     <p>Loading...</p>
@@ -84,15 +82,15 @@ else
                                               Click="@(args => EditRowIngredient(recipeIngredientsDto))" @onclick:stopPropagation="true">
                                 </RadzenButton>
                                 <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" 
-                                              Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true"
+                                              Size="ButtonSize.Small" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true"
                                               Click="@((args) => DeleteIngredientRow(recipeIngredientsDto))">
                                 </RadzenButton>
                             </Template>
                             <EditTemplate Context="recipeIngredientsDto">
                                 <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Click="@((args) => SaveRowIngredient(recipeIngredientsDto))" 
-                                              Size="ButtonSize.Medium" aria-label="Save">
+                                              Size="ButtonSize.Small" aria-label="Save">
                                 </RadzenButton>
-                                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" 
+                                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small" 
                                               Click="@((args) => CancelEditIngredient(recipeIngredientsDto))" class="rz-my-1 rz-ms-1" aria-label="Cancel">
                                 </RadzenButton>
                                 <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter"

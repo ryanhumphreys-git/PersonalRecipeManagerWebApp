@@ -58,9 +58,7 @@ public partial class RecipeContext : DbContext
 
         modelBuilder.Entity<UserRecipes>(user =>
         {
-            user.HasKey(e => e.AutoId).HasName("PK__UserRe__6B232905F0FDFDC1");
-
-            user.Property(e => e.AutoId).ValueGeneratedNever();
+            user.HasKey(e => new { e.UserId, e.RecipeId }).HasName("PK_UserId_RecipeId");
 
             user.HasOne(d => d.User).WithMany(p => p.UserRecipes)
                 .HasForeignKey(d => d.UserId)

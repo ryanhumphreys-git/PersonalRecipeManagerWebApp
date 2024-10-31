@@ -39,8 +39,10 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
 
             recipe = await InteractionService.RetrieveRecipeByIdAsync(RecipeId);
 
-            recipeIngredients = await InteractionService.RetrieveRecipeIngredientsDtoByRecipeIdAsync(RecipeId);
+           
             allIngredients = await InteractionService.RetrieveAllWarehouseIngredientsAsync();
+            // after this function a new instance of the dialog card opens while the first one is up
+            recipeIngredients = await InteractionService.RetrieveRecipeIngredientsDtoByRecipeIdAsync(RecipeId);
             ingredientIds = recipeIngredients.Select(e => e.Id).ToList();
 
             recipeEquipment = await InteractionService.RetrieveRecipeEquipmentDtoByRecipeIdAsync(RecipeId);
@@ -49,7 +51,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
 
             isLoading = false;
 
-            await base.OnParametersSetAsync();
+            //await base.OnInitializedAsync();
         }
 
         async Task OnCreateRowEquipment(RecipeEquipmentViewModel equipment)
@@ -113,6 +115,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
 
             insertingRow = false;
             await equipmentGrid.UpdateRow(equipment);
+            await InvokeAsync(StateHasChanged);
         }
 
         async Task OnUpdateRowEquipment(RecipeEquipmentViewModel equipment)
@@ -188,6 +191,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
             disableAdd = false;
 
             await ingredientsGrid.UpdateRow(ingredient);
+            await InvokeAsync(StateHasChanged);
         }
 
         async Task OnUpdateRowIngredient(RecipeIngredientsViewModel ingredient)

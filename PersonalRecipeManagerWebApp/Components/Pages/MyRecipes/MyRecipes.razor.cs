@@ -16,17 +16,24 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
         List<Recipe> recipes;
 
         private bool disableAdd;
+        private bool isDialogOpen = false;
 
         private Recipe currentlyEditingRecipe;
 
-        async Task OpenRecipe(Guid recipeId) =>
-                    await DialogService.OpenAsync<RecipeInfoCard>($"Recipe Information",
-                    new Dictionary<string, object>() { { "RecipeId", recipeId } },
-                    new DialogOptions() { Width = "700px", Height = "700px" });
+        async Task OpenRecipe(Guid recipeId)
+        {
+            await DialogService.OpenAsync<RecipeInfoCard>($"Recipe Information",
+                new Dictionary<string, object>() { { "RecipeId", recipeId } },
+                new DialogOptions() { Width = "700px", Height = "700px" });
+            
+        }
+
+
+                    
 
         protected override async Task OnInitializedAsync()
         {
-            preRecipe = await InteractionService.RetrieveUserRecipesByIdAsync(Id);
+            preRecipe = await InteractionService.RetrieveAllUserRecipesByUserIdAsync(Id);
             recipes = await InteractionService.RetrieveRecipeCost(preRecipe);
 
             await base.OnInitializedAsync();
@@ -36,7 +43,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
         {
             disableAdd = false;
 
-            UserRecipes userRecipes = new(Guid.NewGuid(), Id, recipe.Id);
+            UserRecipes userRecipes = new(Id, recipe.Id);
 
             await InteractionService.AddRecipeAsync(recipe);
             await InteractionService.AddUserRecipeAsync(userRecipes);

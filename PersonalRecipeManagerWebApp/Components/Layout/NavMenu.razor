@@ -21,8 +21,12 @@
             <RadzenPanelMenuItem Icon="grocery" Path="mykitchen/ingredients" Text="Ingredients" />
             <RadzenPanelMenuItem Icon="oven" Path=@($"/mykitchen/equipment?id={userId}") Text="Equipment" />
         </RadzenPanelMenuItem>
-        <RadzenPanelMenuItem Icon="list_alt" Path="@($"/recipes?id={userId}")" Text="My Recipes" />
+        <RadzenPanelMenuItem Icon="list_alt" Text="My Recipes" >
+            <RadzenPanelMenuItem Icon="list_alt" Path="@($"/recipes?id={userId}")" Text="My Recipes" />
+            <RadzenPanelMenuItem Icon="list_alt" Path="@($"/recipes/select?userid={userId}")" Text="New Recipe Search" />
+        </RadzenPanelMenuItem>
         <RadzenPanelMenuItem Icon="format_list_bulleted" Path="shoppinglist" Text="Shopping List" />
         <RadzenPanelMenuItem Icon="info" Path=@($"/myinfo?id={userId}") Text="My Information" />
+        <RadzenPanelMenuItem Icon="info" Path="/managewarehouse" Text="Test" />
     </RadzenPanelMenu>
 </RadzenSidebar>
