@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using PersonalRecipeManagerWebApp.Models.Equipment;
+using PersonalRecipeManagerWebApp.Models.Ingredients;
 
 namespace PersonalRecipeManagerWebApp.Models;
 

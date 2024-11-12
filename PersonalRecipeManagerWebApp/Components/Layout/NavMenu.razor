@@ -4,7 +4,7 @@
 @inject NavigationManager NavigationManager
 
 
-<RadzenHeader class="rz-h-auto">
+<RadzenHeader  class="rz-h-auto">
     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
         <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
         <RadzenLabel Text="Recipe Manager" />
@@ -17,16 +17,12 @@
             <RadzenPanelMenuItem Icon="warehouse" Path="managewarehouse/ingredients" Text="Ingredients" />
             <RadzenPanelMenuItem Icon="warehouse" Path="managewarehouse/equipment" Text="Equipment" />
         </RadzenPanelMenuItem>
-        <RadzenPanelMenuItem Icon="kitchen" Text="My Kitchen">
-            <RadzenPanelMenuItem Icon="grocery" Path="mykitchen/ingredients" Text="Ingredients" />
-            <RadzenPanelMenuItem Icon="oven" Path=@($"/mykitchen/equipment?id={userId}") Text="Equipment" />
-        </RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Icon="kitchen" Text="My Kitchen" Path=@($"/mykitchens?userid={userId}&") />
         <RadzenPanelMenuItem Icon="list_alt" Text="My Recipes" >
-            <RadzenPanelMenuItem Icon="list_alt" Path="@($"/recipes?id={userId}")" Text="My Recipes" />
-            <RadzenPanelMenuItem Icon="list_alt" Path="@($"/recipes/select?userid={userId}")" Text="New Recipe Search" />
+            <RadzenPanelMenuItem Icon="list_alt" Path="@($"/myrecipes?userid={userId}")" Text="My Recipes" />
+            <RadzenPanelMenuItem Icon="list_alt" Path="@($"/myrecipes/select?userid={userId}")" Text="New Recipe Search" />
         </RadzenPanelMenuItem>
-        <RadzenPanelMenuItem Icon="format_list_bulleted" Path="shoppinglist" Text="Shopping List" />
+        <RadzenPanelMenuItem Icon="format_list_bulleted" Path="@($"/mykitchen/myshoppinglist?userid={userId}")" Text="Shopping List" />
         <RadzenPanelMenuItem Icon="info" Path=@($"/myinfo?id={userId}") Text="My Information" />
-        <RadzenPanelMenuItem Icon="info" Path="/managewarehouse" Text="Test" />
     </RadzenPanelMenu>
 </RadzenSidebar>

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PersonalRecipeManagerWebApp.Models;
+using PersonalRecipeManagerWebApp.Models.Equipment;
 
 namespace PersonalRecipeManagerWebApp.Brokers
 {

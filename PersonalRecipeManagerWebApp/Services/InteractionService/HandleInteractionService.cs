@@ -9,6 +9,4 @@ namespace PersonalRecipeManagerWebApp.Services
     {
         private readonly IStorageBroker _broker = dataBroker;
     }
-
-    
 }

@@ -1,4 +1,4 @@
-namespace PersonalRecipeManagerWebApp.Models;
+namespace PersonalRecipeManagerWebApp.Models.Equipment;
 
 public partial class KitchenEquipment
 {
@@ -8,7 +8,7 @@ public partial class KitchenEquipment
     public virtual Kitchen? Kitchen { get; set; }
     public virtual Equipment? Equipment { get; set; }
 
-    public KitchenEquipment() {}
+    public KitchenEquipment() { }
 
     public KitchenEquipment(Guid kitchenId, Guid toolAndEquipmentId, double quantity)
     {

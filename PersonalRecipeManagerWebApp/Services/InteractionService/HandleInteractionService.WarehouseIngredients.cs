@@ -1,14 +1,18 @@
-﻿using PersonalRecipeManagerWebApp.Models;
+﻿using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
+using PersonalRecipeManagerWebApp.Models;
+using PersonalRecipeManagerWebApp.Models.Ingredients;
 using PersonalRecipeManagerWebApp.Models.RecipeApi;
 
 namespace PersonalRecipeManagerWebApp.Services
 {
     public partial class HandleInteractionService
     {
-        public async ValueTask AddWarehouseIngredientsAsync(Ingredients ingredients)
+        public async ValueTask<bool> AddWarehouseIngredientsAsync(Ingredients ingredients)
         {
-
-            await _broker.InsertWarehouseIngredientsAsync(ingredients);
+            bool isSuccessful = false;
+            Ingredients insertWarehouseIngredients = await _broker.InsertWarehouseIngredientsAsync(ingredients);
+            if (insertWarehouseIngredients is not null) isSuccessful = true;
+            return isSuccessful;
         }
         public async ValueTask<List<Ingredients>> RetrieveAllWarehouseIngredientsAsync()
         {
@@ -32,34 +36,52 @@ namespace PersonalRecipeManagerWebApp.Services
             }
             return recipes;
         }
-        public async ValueTask UpsertWarehouseIngredientsAsync(Ingredients ingredients)
+        public async ValueTask<bool> UpsertWarehouseIngredientsAsync(Ingredients ingredients)
         {
-
+            bool isSuccessful = false;
             var ingredientExists = await _broker.SelectWarehouseIngredientsByIdAsync(ingredients.Id);
             if (ingredientExists is null)
             {
-                await _broker.InsertWarehouseIngredientsAsync(ingredients);
+                Ingredients insertWarehouseIngredients = await _broker.InsertWarehouseIngredientsAsync(ingredients);
+                if (insertWarehouseIngredients is not null) isSuccessful = true;
             }
             else
             {
-                await _broker.UpdateWarehouseIngredientsAsync(ingredients);
+                Ingredients updateWarehouseIngredients = await _broker.UpdateWarehouseIngredientsAsync(ingredients);
+                if (updateWarehouseIngredients is not null) isSuccessful = true;
             }
+            return isSuccessful;
         }
-        public async ValueTask RemoveWarehouseIngredientsAsync(Ingredients ingredients)
+        public async ValueTask<bool> RemoveWarehouseIngredientsAsync(Ingredients ingredients)
         {
-            await _broker.DeleteWarehouseIngredientsAsync(ingredients);
+            bool isSuccessful = false;
+            Ingredients deleteWarehouseIngredients = await _broker.DeleteWarehouseIngredientsAsync(ingredients);
+            if (deleteWarehouseIngredients is not null) isSuccessful = true;
+            return isSuccessful;
         }
-        public async ValueTask AddWarehouseIngredientFromMealDbAsync(MealsDbSearchCleaned selectedRecipe)
+        public async ValueTask<bool> AddWarehouseIngredientFromMealDbAsync(MealsDbSearchCleaned selectedRecipe)
         {
-            for (int i = 0; i < selectedRecipe.ingredients.Count();  i++)
+            bool isSuccessful = false;
+            try
             {
-                Ingredients ingredient = await _broker.SelectWarehouseIngredientsByNameAsync(selectedRecipe.ingredients[i]);
-                if (ingredient == null)
+                _broker.BeginTransaction();
+                for (int i = 0; i < selectedRecipe.ingredients.Count(); i++)
                 {
-                    Ingredients ingredients = new(Guid.NewGuid(), selectedRecipe.ingredients[i], 0, selectedRecipe.units[i]);
-                    await _broker.InsertWarehouseIngredientsAsync(ingredients);
+                    Ingredients ingredient = await _broker.SelectWarehouseIngredientsByNameAsync(selectedRecipe.ingredients[i]);
+                    if (ingredient == null)
+                    {
+                        Ingredients ingredients = new(Guid.NewGuid(), selectedRecipe.ingredients[i], 0, selectedRecipe.units[i]);
+                        await _broker.InsertWarehouseIngredientsAsync(ingredients);
+                    }
                 }
+                isSuccessful = true;
+                _broker.CommitTransaction();
             }
+            catch
+            {
+                _broker.RollbackTransaction();
+            }
+            return isSuccessful;
         }
     }
 }

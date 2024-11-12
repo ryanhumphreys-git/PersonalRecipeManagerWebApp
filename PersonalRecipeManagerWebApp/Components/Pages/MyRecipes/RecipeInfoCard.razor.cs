@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PersonalRecipeManagerWebApp.Models;
+using PersonalRecipeManagerWebApp.Models.Equipment;
+using PersonalRecipeManagerWebApp.Models.Ingredients;
 using Radzen;
 using Radzen.Blazor;
+using System.Transactions;
 
 namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
 {
@@ -10,6 +13,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
         [Parameter] public Guid RecipeId { get; set; }
         [Parameter] public bool ShowClose { get; set; } = true;
 
+        [Inject] NotificationService NotificationService { get; set; }
         [Inject] DialogService DialogService { get; set; }
 
         private bool isLoading = true;
@@ -41,7 +45,6 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
 
            
             allIngredients = await InteractionService.RetrieveAllWarehouseIngredientsAsync();
-            // after this function a new instance of the dialog card opens while the first one is up
             recipeIngredients = await InteractionService.RetrieveRecipeIngredientsDtoByRecipeIdAsync(RecipeId);
             ingredientIds = recipeIngredients.Select(e => e.Id).ToList();
 
@@ -50,8 +53,6 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
             equipmentIds = recipeEquipment.Select(e => e.Id).ToList();
 
             isLoading = false;
-
-            //await base.OnInitializedAsync();
         }
 
         async Task OnCreateRowEquipment(RecipeEquipmentViewModel equipment)
@@ -61,7 +62,11 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
 
             RecipeEquipment newEquipment = new(RecipeId, equipment.Id, equipment.Quantity);
 
-            await InteractionService.AddRecipeEquipmentAsync(newEquipment);
+            bool addRecipeEquipmentSuccess = await InteractionService.AddRecipeEquipmentAsync(newEquipment);
+            if (addRecipeEquipmentSuccess is false)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to save {equipment.Name} to your kitchen");
+            }
         }
 
         async Task InsertRowEquipment()
@@ -104,23 +109,35 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
         async Task SaveRowEquipment(RecipeEquipmentViewModel equipment)
         {
             Equipment currentEquipment = await InteractionService.RetrieveWarehouseEquipmentByIdAsync(equipment.Id);
-            equipment.Name = currentEquipment.Name;
 
-            disableAdd = false;
-
-            if (insertingRow == true)
+            if (currentEquipment is null)
             {
-                equipmentIds.Add(equipment.Id);
+                NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to retrieve {equipment.Name}");
             }
+            else
+            {
+                equipment.Name = currentEquipment.Name;
 
-            insertingRow = false;
-            await equipmentGrid.UpdateRow(equipment);
-            await InvokeAsync(StateHasChanged);
+                disableAdd = false;
+
+                if (insertingRow == true)
+                {
+                    equipmentIds.Add(equipment.Id);
+                }
+
+                insertingRow = false;
+                await equipmentGrid.UpdateRow(equipment);
+                await InvokeAsync(StateHasChanged);
+            }
         }
 
         async Task OnUpdateRowEquipment(RecipeEquipmentViewModel equipment)
         {
-            await InteractionService.UpsertRecipeEquipmentAsync(RecipeId, equipment);
+            bool upsertSuccess = await InteractionService.UpsertRecipeEquipmentAsync(RecipeId, equipment);
+            if (upsertSuccess is false)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to insert or update {equipment.Name}");
+            }
         }
 
         async Task DeleteEquipmentRow(RecipeEquipmentViewModel equipment)
@@ -130,7 +147,11 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
             {
                 recipeEquipment.Remove(equipment);
                 equipmentIds.Remove(equipment.Id);
-                await InteractionService.RemoveRecipeEquipmentAsync(RecipeId, equipment);
+                bool removeSuccess = await InteractionService.RemoveRecipeEquipmentAsync(RecipeId, equipment);
+                if (removeSuccess is false)
+                {
+                    NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to delete {equipment.Name}");
+                }
                 await equipmentGrid.Reload();
             }
             disableAdd = false;
@@ -143,7 +164,11 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
 
             RecipeIngredients newIngredient = new(RecipeId, ingredient.Id, ingredient.Quantity, ingredient.UnitOfMeasurement);
 
-            await InteractionService.AddRecipeIngredientsAsync(newIngredient);
+            bool addSuccess = await InteractionService.AddRecipeIngredientsAsync(newIngredient);
+            if (addSuccess is false)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to add {ingredient.Name}");
+            }
         }
 
         async Task InsertRowIngredient()
@@ -186,6 +211,10 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
         async Task SaveRowIngredient(RecipeIngredientsViewModel ingredient)
         {
             Ingredients currentIngredient = await InteractionService.RetrieveWarehouseIngredientByIdAsync(ingredient.Id);
+            if (currentIngredient is null)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to retrieve {ingredient.Name}");
+            }
             ingredient.Name = currentIngredient.Name;
 
             disableAdd = false;
@@ -196,7 +225,11 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
 
         async Task OnUpdateRowIngredient(RecipeIngredientsViewModel ingredient)
         {
-            await InteractionService.UpsertRecipeIngredientAsync(RecipeId, ingredient);
+            bool upsertSuccess = await InteractionService.UpsertRecipeIngredientAsync(RecipeId, ingredient);
+            if (upsertSuccess is false)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to insert or update {ingredient.Name}");
+            }
         }
 
         async Task DeleteIngredientRow(RecipeIngredientsViewModel ingredient)
@@ -205,7 +238,11 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
             if (result.HasValue && result.Value)
             {
                 recipeIngredients.Remove(ingredient);
-                await InteractionService.RemoveRecipeIngredientAsync(RecipeId, ingredient);
+                bool removeSuccess = await InteractionService.RemoveRecipeIngredientAsync(RecipeId, ingredient);
+                if (removeSuccess is false)
+                {
+                    NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to remove {ingredient.Name}");
+                }
                 await ingredientsGrid.Reload();
             }
             disableAdd = false;

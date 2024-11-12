@@ -1,0 +1,15 @@
+﻿@page "/mykitchen/myshoppinglist/createnewlist"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using PersonalRecipeManagerWebApp.Models
+@using PersonalRecipeManagerWebApp.Services
+@using PersonalRecipeManagerWebApp.Data
+@inject DialogService dialogService
+
+
+<PageTitle>ShoppingListNameCard</PageTitle>
+
+<RadzenTemplateForm TItem="string">
+    <RadzenTextBox @bind-Value="shoppingListName" Placeholder="Enter the name of your shopping list" Style="width: 350px"/>
+    <RadzenButton Text="Submit" ButtonType="ButtonType.Submit" Click="@OnSubmit" />
+</RadzenTemplateForm>

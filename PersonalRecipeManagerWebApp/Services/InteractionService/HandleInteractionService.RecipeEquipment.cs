@@ -1,12 +1,15 @@
-﻿using PersonalRecipeManagerWebApp.Models;
+﻿using PersonalRecipeManagerWebApp.Models.Equipment;
 
 namespace PersonalRecipeManagerWebApp.Services
 {
     public partial class HandleInteractionService
     {
-        public async ValueTask AddRecipeEquipmentAsync(RecipeEquipment equipment)
+        public async ValueTask<bool> AddRecipeEquipmentAsync(RecipeEquipment equipment)
         {
-            await _broker.InsertRecipeEquipmentAsync(equipment);
+            bool isSuccessful = false;
+            RecipeEquipment insertRecipeEquipmentSuccess = await _broker.InsertRecipeEquipmentAsync(equipment);
+            if (insertRecipeEquipmentSuccess is not null) isSuccessful = true;
+            return isSuccessful;
         }
         public async ValueTask<List<RecipeEquipmentViewModel>> RetrieveRecipeEquipmentDtoByRecipeIdAsync(Guid id)
         {
@@ -17,23 +20,33 @@ namespace PersonalRecipeManagerWebApp.Services
         {
             return await _broker.SelectRecipeEquipmentByIdAsync(recipeId, equipmentId);
         }
-        public async ValueTask UpsertRecipeEquipmentAsync(Guid recipeId, RecipeEquipmentViewModel equipment)
+        public async ValueTask<bool> UpsertRecipeEquipmentAsync(Guid recipeId, RecipeEquipmentViewModel equipment)
         {
+            bool isSuccessful = false;
             RecipeEquipment equipmentExists = await _broker.SelectRecipeEquipmentByIdAsync(recipeId, equipment.Id);
 
             if (equipmentExists is null)
             {
-                await _broker.InsertRecipeEquipmentAsync(equipmentExists);
+                equipmentExists = new(recipeId, equipment.Id, equipment.Quantity);
+                RecipeEquipment insertRecipeEquipment = await _broker.InsertRecipeEquipmentAsync(equipmentExists);
+                if (insertRecipeEquipment is not null) isSuccessful = true;
             }
             else
             {
-                await _broker.UpdateRecipeEquipmentAsync(equipmentExists);
+                equipmentExists.EquipmentId = equipment.Id;
+                equipmentExists.Quantity = equipment.Quantity;
+                RecipeEquipment updateRecipeEquipemnt = await _broker.UpdateRecipeEquipmentAsync(equipmentExists);
+                if (updateRecipeEquipemnt is not null) isSuccessful = true;
             }
+            return isSuccessful;
         }
-        public async ValueTask RemoveRecipeEquipmentAsync(Guid recipeId, RecipeEquipmentViewModel equipment)
+        public async ValueTask<bool> RemoveRecipeEquipmentAsync(Guid recipeId, RecipeEquipmentViewModel equipment)
         {
+            bool isSuccessful = false;
             RecipeEquipment editEquipment = await _broker.SelectRecipeEquipmentByIdAsync(recipeId, equipment.Id);
-            await _broker.DeleteRecipeEquipmentAsync(editEquipment);
+            RecipeEquipment deleteRecipeEquipment = await _broker.DeleteRecipeEquipmentAsync(editEquipment);
+            if (deleteRecipeEquipment is not null) isSuccessful = true;
+            return isSuccessful;
         }
         public async ValueTask<bool> CheckIfRecipeHasEquipmentByIdAsync(Guid recipeId, Guid equipmentId)
         {

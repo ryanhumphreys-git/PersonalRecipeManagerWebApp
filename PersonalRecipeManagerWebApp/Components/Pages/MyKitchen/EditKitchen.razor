@@ -1,0 +1,135 @@
+﻿@page "/mykitchen/editkitchen"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using PersonalRecipeManagerWebApp.Models.Ingredients
+@using PersonalRecipeManagerWebApp.Data
+@using PersonalRecipeManagerWebApp.Services
+@using PersonalRecipeManagerWebApp.Models.Equipment
+@using System.Text
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else
+{
+    @if (!kitchenIngredientsFound || !allIngredientsFound || !kitchenEquipmentFound || !allEquipmentFound)
+    {
+        StringBuilder message = new();
+        
+        if (!kitchenIngredientsFound)
+        {
+            message.Append("kitchen ingredients not found");
+        }
+        if (!allIngredientsFound)
+        {
+            if (message.Length > 0)
+            {
+                message.Append(", ");
+            }
+            message.Append("warehouse ingredients not found");
+        }
+        if (!kitchenEquipmentFound)
+        {
+            if (message.Length > 0)
+            {
+                message.Append(", ");
+            }
+            message.Append("kitchen equipment not found");
+        }
+        if (!allEquipmentFound)
+        {
+            if (message.Length > 0)
+            {
+                message.Append(", ");
+            }
+            message.Append("warehouse equipment not found");
+        }
+        <h2>@message</h2>
+    }
+    else
+    {
+        <p> </p>
+        <br/>
+        <h2>You are in the @(selectedKitchen.Name).</h2>
+        <RadzenDataGrid @ref="ingredientsGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
+                        AllowPaging="true" TItem="KitchenIngredientsViewModel" FilterMode="FilterMode.Simple" Data="@userIngredients" EditMode="DataGridEditMode.Single"
+                        RowUpdate="@OnUpdateIngredientRow" RowCreate="@OnCreateIngredientRow">
+
+            <HeaderTemplate>
+                <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Ingredient" Click="@InsertIngredientRow" Disabled="@disableAdd" />
+            </HeaderTemplate>
+            <Columns>
+                <RadzenDataGridColumn TItem="KitchenIngredientsViewModel" Property="Name" Title="Name">
+                    <EditTemplate Context="kitchenIngredientsDto">
+                        <RadzenDropDown @bind-Value="kitchenIngredientsDto.Id" Change="@(args => OnIngredientSelectionChange(args, kitchenIngredientsDto))" Data="@FilteredIngredientList" ValueProperty="Id" TextProperty="Name" Style="width:200px; display: block" Name="Name" aria-label="Enter Name" />
+                        <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="KitchenIngredientsViewModel" Property="Quantity" Title="Quantity">
+                    <EditTemplate Context="kitchenIngredientsDto">
+                        <RadzenNumeric @bind-Value="kitchenIngredientsDto.Quantity" Style="width:100%" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select Quantity" }})" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="KitchenIngredientsViewModel" Property="UnitOfMeasurement" Title="Unit of Measurement">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Context="kitchenIngredientsDto" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                    <Template Context="kitchenIngredientsDto">
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditIngredientRow(kitchenIngredientsDto))" @onclick:stopPropagation="true">
+                        </RadzenButton>
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Click="@((args) => DeleteIngredientRow(kitchenIngredientsDto))" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="kitchenIngredientsDto">
+                        <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Click="@((args) => SaveIngredientRow(kitchenIngredientsDto))" Size="ButtonSize.Medium" aria-label="Save">
+                        </RadzenButton>
+                        <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => CancelIngredientEdit(kitchenIngredientsDto))" class="rz-my-1 rz-ms-1" aria-label="Cancel">
+                        </RadzenButton>
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Click="@((args) => DeleteIngredientRow(kitchenIngredientsDto))" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete">
+                        </RadzenButton>
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+        <RadzenDataGrid @ref="equipmentGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
+                        AllowPaging="true" TItem="KitchenEquipmentViewModel" FilterMode="FilterMode.Simple" Data="@userEquipment" EditMode="DataGridEditMode.Single"
+                        RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+
+            <HeaderTemplate>
+                <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add Additional Equipment" Click="@InsertEquipmentRow" Disabled="@disableAdd" />
+            </HeaderTemplate>
+            <Columns>
+                <RadzenDataGridColumn TItem="KitchenEquipmentViewModel" Property="Name" Title="Name">
+                    <EditTemplate Context="kitchenEquipmentDto">
+                        <RadzenDropDown @bind-Value="kitchenEquipmentDto.Id" Data="@FilteredEquipmentList" ValueProperty="Id" TextProperty="Name" Style="width:200px; display: block" Name="Name" aria-label="Enter Name" />
+                        <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="KitchenEquipmentViewModel" Property="Quantity" Title="Quantity">
+                    <EditTemplate Context="kitchenEquipmentDto">
+                        <RadzenNumeric @bind-Value="kitchenEquipmentDto.Quantity" Style="width:100%" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select Quantity" }})" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Context="kitchenEquipmentDto" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                    <Template Context="kitchenEquipmentDto">
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditEquipmentRow(kitchenEquipmentDto))" @onclick:stopPropagation="true">
+                        </RadzenButton>
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Click="@((args) => DeleteEquipmentRow(kitchenEquipmentDto))" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="kitchenEquipmentDto">
+                        <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Click="@((args) => SaveEquipmentRow(kitchenEquipmentDto))" Size="ButtonSize.Medium" aria-label="Save">
+                        </RadzenButton>
+                        <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => CancelEquipmentEdit(kitchenEquipmentDto))" class="rz-my-1 rz-ms-1" aria-label="Cancel">
+                        </RadzenButton>
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Click="@((args) => DeleteEquipmentRow(kitchenEquipmentDto))" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete">
+                        </RadzenButton>
+                    </EditTemplate>
+                </RadzenDataGridColumn>
+            </Columns>
+
+        </RadzenDataGrid>
+    }
+}
+
+

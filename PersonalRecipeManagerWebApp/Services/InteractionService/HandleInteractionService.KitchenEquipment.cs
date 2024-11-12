@@ -1,13 +1,15 @@
-﻿using PersonalRecipeManagerWebApp.Models;
+﻿using PersonalRecipeManagerWebApp.Models.Equipment;
 
 namespace PersonalRecipeManagerWebApp.Services
 {
     public partial class HandleInteractionService
     {
-        public async ValueTask AddKitchenEquipmentAsync(KitchenEquipment equipment)
+        public async ValueTask<bool> AddKitchenEquipmentAsync(KitchenEquipment equipment)
         {
-
-            await _broker.InsertKitchenEquipmentAsync(equipment);
+            bool isSuccessful = false;
+            KitchenEquipment insertKitchenEquipemnt = await _broker.InsertKitchenEquipmentAsync(equipment);
+            if (insertKitchenEquipemnt is not null) isSuccessful = true;
+            return isSuccessful;
         }
         public async ValueTask<List<KitchenEquipmentViewModel>> RetrieveKitchenEquipmentDtoByKitchenIdAsync(Guid id)
         {
@@ -19,27 +21,34 @@ namespace PersonalRecipeManagerWebApp.Services
             return await _broker.SelectKitchenEquipmentByIdAsync(kitchenId, equipmentId);
 
         }
-        public async ValueTask UpsertKitchenEquipmentAsync(Guid kitchenId, KitchenEquipmentViewModel equipment)
+        public async ValueTask<bool> UpsertKitchenEquipmentAsync(Guid kitchenId, KitchenEquipmentViewModel equipment)
         {
             KitchenEquipment equipmentExists = await _broker.SelectKitchenEquipmentByIdAsync(kitchenId, equipment.Id);
+            bool isSuccessful = false;
 
             if (equipmentExists is null)
             {
                 equipmentExists = new(kitchenId, equipment.Id, equipment.Quantity);
-                await _broker.InsertKitchenEquipmentAsync(equipmentExists);
+                KitchenEquipment insertedKitchenEquipment = await _broker.InsertKitchenEquipmentAsync(equipmentExists);
+                if (insertedKitchenEquipment is not null) isSuccessful = true;
             }
             else
             {
                 equipmentExists.EquipmentId = equipment.Id;
                 equipmentExists.Quantity = equipment.Quantity;
 
-                await _broker.UpdateKitchenEquipmentAsync(equipmentExists);
+                KitchenEquipment updatedKitchenEquipment = await _broker.UpdateKitchenEquipmentAsync(equipmentExists);
+                if (updatedKitchenEquipment is not null) isSuccessful = true;
             }
+            return isSuccessful;
         }
-        public async ValueTask RemoveKitchenEquipmentAsync(Guid kitchenId, KitchenEquipmentViewModel equipment)
+        public async ValueTask<bool> RemoveKitchenEquipmentAsync(Guid kitchenId, KitchenEquipmentViewModel equipment)
         {
+            bool isSuccessful = false;
             KitchenEquipment editEquipment = await _broker.SelectKitchenEquipmentByIdAsync(kitchenId, equipment.Id);
-            await _broker.DeleteKitchenEquipmentAsync(editEquipment);
+            KitchenEquipment deleteKitchenEquipment = await _broker.DeleteKitchenEquipmentAsync(editEquipment);
+            if (deleteKitchenEquipment is not null) isSuccessful = true;
+            return isSuccessful;
         }
         public async ValueTask<bool> CheckIfKitchenHasEquipmentByIdAsync(Guid kitchenId, Guid equipmentId)
         {

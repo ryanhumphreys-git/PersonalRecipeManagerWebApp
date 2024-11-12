@@ -6,10 +6,10 @@ namespace PersonalRecipeManagerWebApp.Services
 {
     public partial interface IHandleInteractionService
     {
-        ValueTask AddRecipeAsync(Recipe recipe);
+        ValueTask<bool> AddRecipeAsync(Recipe recipe);
         ValueTask<Recipe> RetrieveRecipeByIdAsync(Guid id);
-        ValueTask UpsertRecipeAsync(Recipe recipe);
-        ValueTask RemoveRecipeAsync(Recipe recipe);
+        ValueTask<bool> UpsertRecipeAsync(Recipe recipe);
+        ValueTask<bool> RemoveRecipeAsync(Recipe recipe);
         Recipe ConvertMealDbRecipeIntoRecipeType(MealsDbSearchCleaned mealDbRecipe);
         ValueTask<Recipe> AddRecipeFromMealDb(IList<MealsDbSearchCleaned> mealDbSearchResults);
         ValueTask<List<Recipe>> RetrieveAllUserRecipesByUserIdAsync(Guid userId);

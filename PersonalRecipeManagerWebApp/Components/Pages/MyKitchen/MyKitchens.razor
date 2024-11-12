@@ -1,0 +1,61 @@
+﻿@page "/mykitchens"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using PersonalRecipeManagerWebApp.Models
+@using PersonalRecipeManagerWebApp.Data
+
+<PageTitle>My Kitchen</PageTitle>
+
+<p> </p>
+<br/>
+
+<RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" >
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center">
+        <RadzenLabel Text="Select" />
+        <RadzenDropDown @bind-Value=@selectedKitchen Data="@userKitchens" ValueProperty="Id" TextProperty="Name" />
+        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="View Selected Kitchen" Click="@OnClickViewKitchen" />
+    </RadzenStack>
+    <RadzenDataGrid @ref="kitchenGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
+                    AllowPaging="true" TItem="Kitchen" FilterMode="FilterMode.Simple" Data="@userKitchens" EditMode="DataGridEditMode.Single"
+                    RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+
+        <HeaderTemplate>
+            <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Kitchen" Click="@InsertRow" Disabled="@disableAdd" />
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn TItem="Kitchen" Property="Name" Title="Name">
+                <EditTemplate Context="kitchen">
+                    <RadzenTextBox @bind-Value="kitchen.Name" Style="width:100%; display: block" Name="Name" aria-label="Enter Name" />
+                    <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Kitchen" Property="TypeName" Title="Type">
+                <Template Context="kitchen">
+                    @kTypes.FirstOrDefault(t => t.Id == kitchen.TypeId)?.Name
+                </Template>
+                <EditTemplate Context="kitchen">
+                    <RadzenDropDown @bind-Value="kitchen.TypeId" ValueProperty="Id" TextProperty="Name" Data="@kTypes"
+                                    Style="width:100%" Name="TypeName" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Context="kitchen" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                <Template Context="kitchen">
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => OnEditKitchen(kitchen))" @onclick:stopPropagation="true">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Click="@((args) => DeleteRow(kitchen))" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
+                    </RadzenButton>
+                </Template>
+                <EditTemplate Context="kitchen">
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Click="@((args) => SaveRow(kitchen))" Size="ButtonSize.Medium" aria-label="Save">
+                    </RadzenButton>
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => CancelEdit(kitchen))" class="rz-my-1 rz-ms-1" aria-label="Cancel">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Click="@((args) => DeleteRow(kitchen))" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete">
+                    </RadzenButton>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+    <br/>
+
+</RadzenStack>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
-using PersonalRecipeManagerWebApp.Models;
+using PersonalRecipeManagerWebApp.Components.Pages.MyKitchen;
+using PersonalRecipeManagerWebApp.Models.Ingredients;
 using Radzen;
 using Radzen.Blazor;
 
@@ -7,8 +8,8 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.ManageWarehouse
 {
     public partial class IngredientsWarehouse
     {
-        [Inject]
-        DialogService DialogService { get; set; }
+        [Inject] NotificationService NotificationService { get; set; }
+        [Inject] DialogService DialogService { get; set; }
 
         RadzenDataGrid<Ingredients> ingredientsGrid;
         List<Ingredients> ingredients;
@@ -27,7 +28,11 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.ManageWarehouse
         {
             disableAdd = false;
 
-            await InteractionService.AddWarehouseIngredientsAsync(ingredient);
+            bool addWarhouseIngredientsSuccess = await InteractionService.AddWarehouseIngredientsAsync(ingredient);
+            if (addWarhouseIngredientsSuccess is false)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to retrieve {ingredient.Name})");
+            }
         }
 
         async Task InsertRow()
@@ -66,7 +71,11 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.ManageWarehouse
 
         async Task OnUpdateRow(Ingredients ingredient)
         {
-            await InteractionService.UpsertWarehouseIngredientsAsync(ingredient);
+            bool upsertWarehouseIngredientSuccess = await InteractionService.UpsertWarehouseIngredientsAsync(ingredient);
+            if (upsertWarehouseIngredientSuccess is false)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to insert or update {ingredient.Name})");
+            }
         }
 
         async Task DeleteRow(Ingredients ingredient)
@@ -75,7 +84,11 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.ManageWarehouse
             if (result.HasValue && result.Value)
             {
                 ingredients.Remove(ingredient);
-                await InteractionService.RemoveWarehouseIngredientsAsync(ingredient);
+                bool removeWarehouseIngredientsSueccess = await InteractionService.RemoveWarehouseIngredientsAsync(ingredient);
+                if (removeWarehouseIngredientsSueccess is false)
+                {
+                    NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to remove {ingredient.Name})");
+                }
                 await ingredientsGrid.Reload();
             }
             disableAdd = false;

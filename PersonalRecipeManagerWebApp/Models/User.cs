@@ -9,10 +9,7 @@ public class User
     public int CookingSkill { get; set; }
     public virtual ICollection<UserKitchen> UserKitchens { get; set; } = new List<UserKitchen>();
     public virtual ICollection<UserRecipes> UserRecipes { get; set; } = new List<UserRecipes>();
-    [NotMapped]
-    public ShoppingList UserShoppingList { get; set; } = new();
-    [NotMapped]
-    public List<Recipe> RecipeList { get; set; } = new();
+    public ICollection<UserShoppingList> UserShoppingLists { get; set; } = new List<UserShoppingList>();
 
     public User(Guid id, string name, int age, int cookingSkill)
     {

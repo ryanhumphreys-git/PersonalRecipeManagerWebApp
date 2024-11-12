@@ -1,4 +1,4 @@
-﻿namespace PersonalRecipeManagerWebApp.Models;
+﻿namespace PersonalRecipeManagerWebApp.Models.Ingredients;
 
 public class IngredientsViewModel
 {
@@ -9,7 +9,7 @@ public class IngredientsViewModel
 }
 public class KitchenIngredientsViewModel : IngredientsViewModel
 {
-   public Guid KitchenId { get; set; }
+    public Guid KitchenId { get; set; }
 }
 
 public class RecipeIngredientsViewModel : IngredientsViewModel

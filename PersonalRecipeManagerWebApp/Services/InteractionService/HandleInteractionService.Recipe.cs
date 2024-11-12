@@ -5,32 +5,43 @@ namespace PersonalRecipeManagerWebApp.Services
 {
     public partial class HandleInteractionService
     {
-        public async ValueTask AddRecipeAsync(Recipe recipe)
+        public async ValueTask<bool> AddRecipeAsync(Recipe recipe)
         {
-            await _broker.InsertRecipeAsync(recipe);
+            bool isSuccessful = false;
+            Recipe insertRecipe = await _broker.InsertRecipeAsync(recipe);
+            if (insertRecipe is not null) isSuccessful = true;
+            return isSuccessful;
         }
         public async ValueTask<Recipe> RetrieveRecipeByIdAsync(Guid id)
         {
 
             return await _broker.SelectRecipeByIdAsync(id);
         }
-        public async ValueTask UpsertRecipeAsync(Recipe recipe)
+        public async ValueTask<bool> UpsertRecipeAsync(Recipe recipe)
         {
+            bool isSuccessful = false;
             var recipeExists = await _broker.SelectRecipeByIdAsync(recipe.Id);
 
             if (recipeExists is null)
             {
-                await _broker.InsertRecipeAsync(recipe);
+                Recipe insertRecipe = await _broker.InsertRecipeAsync(recipe);
+                if (insertRecipe is not null) isSuccessful = true;
             }
             else
             {
-                await _broker.UpdateRecipeAsync(recipe);
+                Recipe updateRecipe = await _broker.UpdateRecipeAsync(recipe);
+                if (updateRecipe is not null) isSuccessful = true;
             }
+            return isSuccessful;
         }
-        public async ValueTask RemoveRecipeAsync(Recipe recipe)
+        public async ValueTask<bool> RemoveRecipeAsync(Recipe recipe)
         {
-            await _broker.DeleteUserRecipesByIdAsync(recipe.Id);
-            await _broker.DeleteRecipeAsync(recipe);
+            bool isSuccessful = false;
+            UserRecipes deleteUserRecipe = await _broker.DeleteUserRecipesByIdAsync(recipe.Id);
+            if (deleteUserRecipe is null) return false;
+            Recipe deleteRecipe = await _broker.DeleteRecipeAsync(recipe);
+            if (deleteUserRecipe is not null && deleteRecipe is not null) isSuccessful = true;
+            return isSuccessful;
         }
         public Recipe ConvertMealDbRecipeIntoRecipeType(MealsDbSearchCleaned mealDbRecipe)
         {

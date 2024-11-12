@@ -6,6 +6,7 @@ using Radzen.Blazor;
 using PersonalRecipeManagerWebApp.Models;
 using System.Data.SqlTypes;
 using Radzen;
+using FluentAssertions.Execution;
 
 namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
 {
@@ -69,9 +70,32 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
             else
             {
                 Recipe selectedRecipeType = await storageService.AddRecipeFromMealDb(selectedRecipe);
-                await storageService.AddWarehouseIngredientFromMealDbAsync(recipeSelected);
-                await storageService.AddRecipeIngredientsFromMealDbAsync(recipeSelected, selectedRecipeType);
-                await storageService.AddUserRecipeFromMealDbAsync(UserId, selectedRecipeType);
+                if (selectedRecipeType is null)
+                {
+                    NotificationService.Notify(NotificationSeverity.Error, "Error", "Unable to add this recipe");
+                    return;
+                }
+                bool addToWarehouse = await storageService.AddWarehouseIngredientFromMealDbAsync(recipeSelected);
+                if (addToWarehouse is false)
+                {
+                    NotificationService.Notify(NotificationSeverity.Error, "Error", "Unable to add all ingredients to warehouse, transaction rolled back and recipe removed");
+                    await storageService.RemoveRecipeAsync(selectedRecipeType);
+                    return;
+                }
+                bool addToRecipeIngredients = await storageService.AddRecipeIngredientsFromMealDbAsync(recipeSelected, selectedRecipeType);
+                if (addToRecipeIngredients is false)
+                {
+                    NotificationService.Notify(NotificationSeverity.Error, "Error", "Unable to add all recipe ingredients, transaction rolled back and recipe removed");
+                    await storageService.RemoveRecipeAsync(selectedRecipeType);
+                    return;
+                }
+                bool addUserRecipe = await storageService.AddUserRecipeFromMealDbAsync(UserId, selectedRecipeType);
+                if (addUserRecipe is false)
+                {
+                    NotificationService.Notify(NotificationSeverity.Error, "Error", "Unable to add recipe to user, recipe removed");
+                    await storageService.RemoveRecipeAsync(selectedRecipeType);
+                    return;
+                }
 
                 NotificationService.Notify(new NotificationMessage
                 {

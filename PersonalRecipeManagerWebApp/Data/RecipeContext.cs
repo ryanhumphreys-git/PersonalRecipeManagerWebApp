@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PersonalRecipeManagerWebApp.Models;
+using PersonalRecipeManagerWebApp.Models.Equipment;
+using PersonalRecipeManagerWebApp.Models.Ingredients;
 
 namespace PersonalRecipeManagerWebApp.Data;
 
@@ -17,6 +19,9 @@ public partial class RecipeContext : DbContext
     public DbSet<Recipe> Recipes { get; set; }
     public DbSet<RecipeIngredients> RecipeIngredients { get; set; }
     public DbSet<RecipeEquipment> RecipeEquipment { get; set; }
+    public DbSet<UserShoppingList> UserShoppingList { get; set; }
+    public DbSet<ShoppingListIngredients> ShoppingListIngredients { get; set; }
+    public DbSet<ShoppingListEquipment> ShoppingListEquipment { get; set; }
 
     public RecipeContext(DbContextOptions<RecipeContext> options)
         : base(options)
@@ -184,7 +189,56 @@ public partial class RecipeContext : DbContext
             user.Property(e => e.Name).HasMaxLength(50);
             user.Property(e => e.Time).HasColumnType("decimal(18, 0)");
         });
-        
+
+        modelBuilder.Entity<UserShoppingList>(user =>
+        {
+            user.HasKey(e => e.ShoppingListId).HasName("PK_UserShoppingList");
+
+            user.Property(e => e.ShoppingListId).ValueGeneratedNever();
+            user.Property(e => e.UserId).ValueGeneratedNever();
+            user.Property(e => e.Name).HasMaxLength(50);
+
+            user.HasOne(d => d.User).WithMany(p => p.UserShoppingLists)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_UserShoppingList_User");
+        });
+
+        modelBuilder.Entity<ShoppingListEquipment>(entity =>
+        {
+            entity.HasKey(e => new { e.ShoppingListId, e.EquipmentId });
+
+            entity.ToTable("ShoppingListEquipment");
+
+            entity.Property(e => e.Quantity).HasColumnType("decimal(18, 0)");
+
+            entity.HasOne(d => d.Equipment).WithMany(p => p.ShoppingListEquipments)
+                .HasForeignKey(d => d.EquipmentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ShoppingListEquipment_Equipment");
+
+            entity.HasOne(d => d.UserShoppingList).WithMany(p => p.ShoppingListEquipments)
+                .HasForeignKey(d => d.ShoppingListId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ShoppingListEquipment_UserShoppingList");
+        });
+
+        modelBuilder.Entity<ShoppingListIngredients>(entity =>
+        {
+            entity.HasKey(e => new { e.ShoppingListId, e.IngredientId });
+
+            entity.Property(e => e.Quantity).HasColumnType("decimal(18, 0)");
+
+            entity.HasOne(d => d.Ingredients).WithMany(p => p.ShoppingListIngredients)
+                .HasForeignKey(d => d.IngredientId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ShoppingListIngredients_Ingredients");
+
+            entity.HasOne(d => d.UserShoppingList).WithMany(p => p.ShoppingListIngredients)
+                .HasForeignKey(d => d.ShoppingListId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ShoppingListIngredients_UserShoppingList");
+        });
+
         modelBuilder.Entity<RecipeIngredientsViewModel>().HasNoKey().ToView(null);
         modelBuilder.Entity<EquipmentViewModel>().HasNoKey().ToView(null);
 

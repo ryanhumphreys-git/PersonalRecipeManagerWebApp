@@ -1,0 +1,173 @@
+﻿@page "/myrecipes/addnewrecipe"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using PersonalRecipeManagerWebApp.Models.Ingredients
+@using PersonalRecipeManagerWebApp.Models.Equipment
+@using PersonalRecipeManagerWebApp.Services
+@using PersonalRecipeManagerWebApp.Data
+@inject IHandleInteractionService InteractionService
+
+<PageTitle>Recipe Info Card</PageTitle>
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (recipeNotCreated)
+{
+    <br/>
+    <RadzenStack Orientation="Orientation.Horizontal" Wrap="FlexWrap.Wrap" Gap="1rem">
+        <RadzenFormField Text="Name" Variant="Variant.Outlined" Style="flex: 1;">
+            <RadzenTextBox @bind-Value="@newRecipe.Name" Disabled="@disabled" />
+        </RadzenFormField>
+        <RadzenFormField Text="Difficulty" Variant="Variant.Outlined" Style="flex: 1;">
+            <RadzenNumeric @bind-Value="@newRecipe.Difficulty" Disabled="@disabled" />
+        </RadzenFormField>
+        <RadzenFormField Text="Time" Variant="Variant.Outlined" Style="flex: 1;">
+            <RadzenNumeric @bind-Value="@newRecipe.Time" Disabled="@disabled" />
+        </RadzenFormField>
+        <RadzenButton Text="Save" ButtonStyle="ButtonStyle.Primary" Click="@OnClickSaveNewRecipe" />
+    </RadzenStack>
+}
+else
+{
+    <br/>
+    <RadzenStack Gap="1rem" Orientation="Orientation.Vertical" JustifyContent="JustifyContent.SpaceBetween" Style="height: 100%;">
+        <RadzenStack>
+            <RadzenRow>
+                <RadzenRow Size="14" SizeMD="8" class="rz-p-4 rz-border-radius-1" Style="border: var(--rz-grid-cell-border); width: 850px">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="100">
+                        <RadzenStack Gap="0" class="rz-text-truncate">
+                            <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Name</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate"><b>@(newRecipe.Name)</b></RadzenText>
+                        </RadzenStack>
+                        <RadzenStack Gap="0" class="rz-text-truncate">
+                            <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Difficulty</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate"><b>@(newRecipe.Difficulty)</b></RadzenText>
+                        </RadzenStack>
+                        <RadzenStack Gap="0" class="rz-text-truncate">
+                            <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Time</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate"><b>@(newRecipe.Time)</b></RadzenText>
+                        </RadzenStack>
+                        <RadzenStack Gap="0" class="rz-text-truncate">
+                            <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Cost</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate"><b>@(newRecipe.Cost)</b></RadzenText>
+                        </RadzenStack>
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Back to Recipes" Click="@NavigateToRecipes" />
+                    </RadzenStack>
+                </RadzenRow>
+            </RadzenRow>
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                <RadzenText TextStyle="TextStyle.Subtitle1" class="rz-m-0">@newRecipe.Name Cost</RadzenText>
+                <RadzenBadge BadgeStyle="BadgeStyle.Secondary" Text=@($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", newRecipe.Cost)}") />
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                <RadzenDataGrid @ref="ingredientsGrid"
+                                AllowPaging="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TItem="RecipeIngredientsViewModel"
+                                Data="@(recipeIngredients)" ColumnWidth="200px" Density="Density.Compact" AllowAlternatingRows="false"
+                                RowUpdate="@OnUpdateRowIngredient"
+                                RowCreate="@OnCreateRowIngredient">
+
+                    <HeaderTemplate>
+                        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add Additional Ingredient" Click="@InsertRowIngredient" Disabled="@disableAdd" />
+                    </HeaderTemplate>
+                    <Columns>
+                        <RadzenDataGridColumn TItem="RecipeIngredientsViewModel" Width="80px" Property="Name" Title="Name">
+                            <EditTemplate Context="recipeIngredientsDto">
+                                <RadzenDropDown @bind-Value="recipeIngredientsDto.Id" Data="@allIngredients"
+                                                ValueProperty="Id" TextProperty="Name" Style="width:200px; display: block" Name="Name" aria-label="Enter Name" />
+                                <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="RecipeIngredientsViewModel" Width="30px" Property="Quantity" Title="Quantity">
+                            <EditTemplate Context="recipeIngredientsDto">
+                                <RadzenNumeric @bind-Value="recipeIngredientsDto.Quantity" Style="width:100%"
+                                               InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select Quantity" }})" />
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="RecipeIngredientsViewModel" Width="60px" Property="UnitOfMeasurement" Title="Units">
+                            <EditTemplate Context="recipeIngredientsDto">
+                                <RadzenTextBox @bind-Value="recipeIngredientsDto.UnitOfMeasurement" Style="width:200px; display: block"
+                                               Name="UnitOfMeasurement" aria-label="Enter Unit Of Measurement" />
+                                <RadzenRequiredValidator Text="Unit Of Measurement is required" Component="UnitOfMeasurement" Popup="true" />
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+
+                        <RadzenDataGridColumn Width="50px" Context="recipeIngredientsDto" Filterable="false" Sortable="false" TextAlign="TextAlign.Right"
+                                              Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                            <Template Context="recipeIngredientsDto">
+                                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                              Click="@(args => EditRowIngredient(recipeIngredientsDto))" @onclick:stopPropagation="true">
+                                </RadzenButton>
+                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter"
+                                              Size="ButtonSize.Small" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true"
+                                              Click="@((args) => DeleteIngredientRow(recipeIngredientsDto))">
+                                </RadzenButton>
+                            </Template>
+                            <EditTemplate Context="recipeIngredientsDto">
+                                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Click="@((args) => SaveRowIngredient(recipeIngredientsDto))"
+                                              Size="ButtonSize.Small" aria-label="Save">
+                                </RadzenButton>
+                                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
+                                              Click="@((args) => CancelEditIngredient(recipeIngredientsDto))" class="rz-my-1 rz-ms-1" aria-label="Cancel">
+                                </RadzenButton>
+                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter"
+                                              Click="@((args) => DeleteIngredientRow(recipeIngredientsDto))" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete">
+                                </RadzenButton>
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+
+                <RadzenDataGrid @ref="equipmentGrid" AllowPaging="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Data="@(recipeEquipment)" ColumnWidth="200px"
+                                Density="Density.Compact" AllowAlternatingRows="false" TItem="RecipeEquipmentViewModel"
+                                RowUpdate="@OnUpdateRowEquipment"
+                                RowCreate="@OnCreateRowEquipment">
+
+                    <HeaderTemplate>
+                        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add Additional Equipment" Click="@InsertRowEquipment" Disabled="@disableAdd" />
+                    </HeaderTemplate>
+                    <Columns>
+                        <RadzenDataGridColumn TItem="RecipeEquipmentViewModel" Width="80px" Property="Name" Title="Name">
+                            <EditTemplate Context="recipeEquipmentDto">
+                                <RadzenDropDown @bind-Value="recipeEquipmentDto.Id" Data="@allEquipment"
+                                                ValueProperty="Id" TextProperty="Name" Style="width:200px; display: block" Name="Name" aria-label="Enter Name" />
+                                <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="RecipeEquipmentViewModel" Width="30px" Property="Quantity" Title="Quantity">
+                            <EditTemplate Context="recipeEquipmentDto">
+                                <RadzenNumeric @bind-Value="recipeEquipmentDto.Quantity" Style="width:100%"
+                                               InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select Quantity" }})" />
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+
+                        <RadzenDataGridColumn Width="50px" Context="recipeEquipmentDto" Filterable="false" Sortable="false" TextAlign="TextAlign.Right"
+                                              Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                            <Template Context="recipeEquipmentDto">
+                                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                              Click="@(args => EditRowEquipment(recipeEquipmentDto))" @onclick:stopPropagation="true">
+                                </RadzenButton>
+                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter"
+                                              Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true"
+                                              Click="@((args) => DeleteEquipmentRow(recipeEquipmentDto))">
+                                </RadzenButton>
+                            </Template>
+                            <EditTemplate Context="recipeEquipmentDto">
+                                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Click="@((args) => SaveRowEquipment(recipeEquipmentDto))"
+                                              Size="ButtonSize.Medium" aria-label="Save">
+                                </RadzenButton>
+                                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium"
+                                              Click="@((args) => CancelEditEquipment(recipeEquipmentDto))" class="rz-my-1 rz-ms-1" aria-label="Cancel">
+                                </RadzenButton>
+                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter"
+                                              Click="@((args) => DeleteEquipmentRow(recipeEquipmentDto))" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete">
+                                </RadzenButton>
+                            </EditTemplate>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenStack>
+}

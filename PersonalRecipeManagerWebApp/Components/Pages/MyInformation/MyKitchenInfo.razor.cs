@@ -10,6 +10,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyInformation
         private Guid kitchenId = new Guid("E7C14A98-BF68-4D93-A05E-EAD425347E9F");
         bool disabled = true;
 
+        [Inject] NotificationService NotificationService { get; set; }
         [Inject] DialogService DialogService { get; set; }
         private User user { get; set; }
         [SupplyParameterFromQuery]
@@ -31,7 +32,11 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyInformation
 
         private async Task OnClick()
         {
-            await InteractionService.UpdateUserInformationAsync(user);
+            bool updateUserInformationSuccess = await InteractionService.UpdateUserInformationAsync(user);
+            if (updateUserInformationSuccess is false)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to save changes for {user.Name})");
+            }
         }
 
         protected override async Task OnInitializedAsync()
@@ -54,7 +59,11 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyInformation
 
             Kitchen newKitchen = new(Id, kitchen.TypeId, kitchen.Name);
 
-            await InteractionService.AddKitchenAsync(newKitchen);
+            bool addKitchenSuccessful = await InteractionService.AddKitchenAsync(newKitchen);
+            if (addKitchenSuccessful is false)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to save changes for {kitchen.Name})");
+            }
         }
 
         async Task InsertRow()
@@ -87,17 +96,28 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyInformation
         async Task SaveRow(Kitchen kitchen)
         {
             KitchenType kitchenType = await InteractionService.RetrieveKitchenTypeByTypeIdAsync(kitchen.TypeId);
-            kitchen.TypeName = kitchenType.Name;
+            if (kitchenType is null)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to retrieve {kitchen.Name})");
+            }
+            else
+            {
+                kitchen.TypeName = kitchenType.Name;
 
-            disableAdd = false;
+                disableAdd = false;
 
-            await kitchenGrid.UpdateRow(kitchen);
+                await kitchenGrid.UpdateRow(kitchen);
+            }
         }
 
         async Task OnUpdateRow(Kitchen kitchen)
         {
             Kitchen currentKitchen = new(kitchen.Id, kitchen.TypeId, kitchen.Name);
-            await InteractionService.UpsertKitchenAsync(kitchen);
+            bool upsertKitchenSuccess = await InteractionService.UpsertKitchenAsync(kitchen);
+            if (upsertKitchenSuccess is false)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to insert or update {kitchen.Name})");
+            }
         }
 
         async Task DeleteRow(Kitchen kitchen)
@@ -106,7 +126,11 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyInformation
             if (result.HasValue && result.Value)
             {
                 userKitchens.Remove(kitchen);
-                await InteractionService.RemoveKitchenAsync(kitchen);
+                bool removeKitchenSuccess = await InteractionService.RemoveKitchenAsync(kitchen);
+                if (removeKitchenSuccess is false)
+                {
+                    NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to remove {kitchen.Name})");
+                }
                 await kitchenGrid.Reload();
             }
             disableAdd = false;

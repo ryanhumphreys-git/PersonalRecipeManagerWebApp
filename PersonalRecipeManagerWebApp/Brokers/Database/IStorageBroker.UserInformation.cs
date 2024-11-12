@@ -7,6 +7,6 @@ namespace PersonalRecipeManagerWebApp.Brokers
         public ValueTask<User> SelectUserInformationByIdAsync(Guid id);
         public ValueTask<UserKitchen> SelectUserKitchenByIdAsync(Guid id);
         public ValueTask<List<Kitchen>> SelectAllUserKitchensAsync(Guid id);
-        public ValueTask UpdateUserInformationAsync(User user);
+        public ValueTask<User> UpdateUserInformationAsync(User user);
     }
 }

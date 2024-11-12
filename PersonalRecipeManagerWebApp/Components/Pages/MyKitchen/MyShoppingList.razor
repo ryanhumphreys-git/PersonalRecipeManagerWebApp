@@ -1,0 +1,55 @@
+﻿@page "/mykitchen/myshoppinglist"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using PersonalRecipeManagerWebApp.Models
+@using PersonalRecipeManagerWebApp.Data
+@using PersonalRecipeManagerWebApp.Services
+
+<PageTitle>MyShoppingList</PageTitle>
+
+<h1>My Shopping List</h1>
+<p> </p>
+<br />
+
+<RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center">
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center">
+        <RadzenLabel Text="Select" />
+        <RadzenDropDown @bind-Value=@selectedShoppingList Data="@userShoppingLists" ValueProperty="ShoppingListId" TextProperty="Name" />
+        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="View Selected Kitchen" Click="@OnClickViewShoppingList" />
+    </RadzenStack>
+    <RadzenDataGrid @ref="shoppingListGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
+                    AllowPaging="true" TItem="UserShoppingList" FilterMode="FilterMode.Simple" Data="@userShoppingLists" EditMode="DataGridEditMode.Single"
+                    RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+
+        <HeaderTemplate>
+            <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Shopping List" Click="@InsertRow" Disabled="@disableAdd" />
+        </HeaderTemplate>
+        <Columns>
+            <RadzenDataGridColumn TItem="UserShoppingList" Property="Name" Title="Name">
+                <EditTemplate Context="shoppingList">
+                    <RadzenTextBox @bind-Value="shoppingList.Name" Style="width:100%; display: block" Name="Name" aria-label="Enter Name" />
+                    <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Context="shoppingList" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                <Template Context="shoppingList">
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => OnEditShoppingList(shoppingList))" @onclick:stopPropagation="true">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Click="@((args) => DeleteRow(shoppingList))" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" @onclick:stopPropagation="true">
+                    </RadzenButton>
+                </Template>
+                <EditTemplate Context="shoppingList">
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Click="@((args) => SaveRow(shoppingList))" Size="ButtonSize.Medium" aria-label="Save">
+                    </RadzenButton>
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => CancelEdit(shoppingList))" class="rz-my-1 rz-ms-1" aria-label="Cancel">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Click="@((args) => DeleteRow(shoppingList))" Size="ButtonSize.Medium" class="rz-my-1 rz-ms-1" aria-label="Delete">
+                    </RadzenButton>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+    <br />
+
+</RadzenStack>
+

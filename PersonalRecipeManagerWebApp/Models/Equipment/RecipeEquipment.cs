@@ -1,4 +1,4 @@
-namespace PersonalRecipeManagerWebApp.Models;
+namespace PersonalRecipeManagerWebApp.Models.Equipment;
 
 public partial class RecipeEquipment
 {

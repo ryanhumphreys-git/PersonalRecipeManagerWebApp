@@ -17,7 +17,7 @@ namespace PersonalRecipeManagerWebApp.Brokers
                 .Include(k => k.UserKitchens.Where(uk => uk.UserId == id))
                 .ToListAsync();
         }
-        public async ValueTask UpdateUserInformationAsync(User user) =>
+        public async ValueTask<User> UpdateUserInformationAsync(User user) =>
             await UpdateAsync(user);
     }
 }

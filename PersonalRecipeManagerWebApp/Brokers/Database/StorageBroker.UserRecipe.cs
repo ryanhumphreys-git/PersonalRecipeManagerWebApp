@@ -14,10 +14,11 @@ namespace PersonalRecipeManagerWebApp.Brokers
         {
             return await db.UserRecipes.Where(ur => ur.UserId == userId).ToListAsync();
         }
-        public async ValueTask DeleteUserRecipesByIdAsync(Guid recipeId)
+        public async ValueTask<UserRecipes> DeleteUserRecipesByIdAsync(Guid recipeId)
         {
             var recipeToDel = await db.UserRecipes.Where(ur => ur.RecipeId == recipeId).SingleOrDefaultAsync();
             await DeleteAsync(recipeToDel);
+            return recipeToDel;
         }
     }
 }

@@ -1,13 +1,17 @@
 ﻿using PersonalRecipeManagerWebApp.Models;
+using PersonalRecipeManagerWebApp.Models.Ingredients;
 using PersonalRecipeManagerWebApp.Models.RecipeApi;
 
 namespace PersonalRecipeManagerWebApp.Services
 {
     public partial class HandleInteractionService
     {
-        public async ValueTask AddRecipeIngredientsAsync(RecipeIngredients ingredients)
+        public async ValueTask<bool> AddRecipeIngredientsAsync(RecipeIngredients ingredients)
         {
-            await _broker.InsertRecipeIngredientsAsync(ingredients);
+            bool isSuccessful = false;
+            RecipeIngredients insertRecipeIngredients = await _broker.InsertRecipeIngredientsAsync(ingredients);
+            if (insertRecipeIngredients is not null) isSuccessful = true;
+            return isSuccessful;
         }
         public async ValueTask<List<RecipeIngredientsViewModel>> RetrieveRecipeIngredientsDtoByRecipeIdAsync(Guid id)
         {
@@ -18,42 +22,65 @@ namespace PersonalRecipeManagerWebApp.Services
         {
             return await _broker.SelectRecipeIngredientsByIdAsync(recipeId, ingredientId);
         }
-        public async ValueTask UpsertRecipeIngredientAsync(Guid recipeId, RecipeIngredientsViewModel ingredient)
+        public async ValueTask<bool> UpsertRecipeIngredientAsync(Guid recipeId, RecipeIngredientsViewModel ingredient)
         {
+            bool isSuccesssful = false;
             RecipeIngredients ingredientExists = await _broker.SelectRecipeIngredientsByIdAsync(recipeId, ingredient.Id);
 
             if (ingredientExists is null)
             {
-                await _broker.InsertRecipeIngredientsAsync(ingredientExists);
+                ingredientExists = new(recipeId, ingredient.Id, ingredient.Quantity, ingredient.UnitOfMeasurement);
+                RecipeIngredients insertRecipeIngredients = await _broker.InsertRecipeIngredientsAsync(ingredientExists);
+                if (insertRecipeIngredients is not null) isSuccesssful = true;
             }
             else
             {
-                await _broker.UpdateRecipeIngredientsAsync(ingredientExists);
+                ingredientExists.IngredientId = ingredient.Id;
+                ingredientExists.Quantity = ingredient.Quantity;
+                RecipeIngredients updateRecipeIngredients = await _broker.UpdateRecipeIngredientsAsync(ingredientExists);
+                if (updateRecipeIngredients is not null) isSuccesssful = true;
             }
+            return isSuccesssful;
         }
-        public async ValueTask RemoveRecipeIngredientAsync(Guid recipeId, RecipeIngredientsViewModel ingredient)
+        public async ValueTask<bool> RemoveRecipeIngredientAsync(Guid recipeId, RecipeIngredientsViewModel ingredient)
         {
+            bool isSuccessful = false;
             RecipeIngredients editIngredients = await _broker.SelectRecipeIngredientsByIdAsync(recipeId, ingredient.Id);
-            await _broker.DeleteRecipeIngredientsAsync(editIngredients);
+            RecipeIngredients deleteRecipeIngredients = await _broker.DeleteRecipeIngredientsAsync(editIngredients);
+            if (deleteRecipeIngredients is not null) isSuccessful = true;
+            return isSuccessful;
         }
         public async ValueTask<bool> CheckIfRecipeHasIngredientByIdAsync(Guid recipeId, Guid ingredientId)
         {
             var hasIngredient = await _broker.SelectRecipeIngredientsByIdAsync(recipeId, ingredientId);
             return hasIngredient is not null;
         }
-        public async ValueTask AddRecipeIngredientsFromMealDbAsync(MealsDbSearchCleaned selectedRecipe, Recipe recipe)
+        public async ValueTask<bool> AddRecipeIngredientsFromMealDbAsync(MealsDbSearchCleaned selectedRecipe, Recipe recipe)
         {
-            for (int i = 0; i < selectedRecipe.ingredients.Count(); i++)
+            bool isSuccessful = false;
+            try
             {
-                Ingredients ingredient = await _broker.SelectWarehouseIngredientsByNameAsync(selectedRecipe.ingredients[i]);
-                RecipeIngredients recipeIngredients = await RetrieveRecipeIngredientByIdAsync(recipe.Id, ingredient.Id);
-                if (recipeIngredients == null)
+                _broker.BeginTransaction();
+                for (int i = 0; i < selectedRecipe.ingredients.Count(); i++)
                 {
-                    RecipeIngredients ingredients = new(recipe.Id, ingredient.Id, selectedRecipe.measurement[i], selectedRecipe.units[i]);
-                    await AddRecipeIngredientsAsync(ingredients);
+                    Ingredients ingredient = await _broker.SelectWarehouseIngredientsByNameAsync(selectedRecipe.ingredients[i]);
+                    RecipeIngredients recipeIngredients = await RetrieveRecipeIngredientByIdAsync(recipe.Id, ingredient.Id);
+                    if (recipeIngredients == null)
+                    {
+                        RecipeIngredients ingredients = new(recipe.Id, ingredient.Id, selectedRecipe.measurement[i], selectedRecipe.units[i]);
+                        await AddRecipeIngredientsAsync(ingredients);
+                    }
                 }
+                isSuccessful = true;
+                _broker.CommitTransaction();
             }
+            catch
+            {
+                _broker.RollbackTransaction();
+            }
+            return isSuccessful;
         }
+
 
     }
 }
