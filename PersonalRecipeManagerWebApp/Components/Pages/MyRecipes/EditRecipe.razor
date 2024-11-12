@@ -16,10 +16,10 @@ else
 {
     <p> </p>
     <br/>
-    <RadzenStack Gap="1rem" Orientation="Orientation.Vertical" JustifyContent="JustifyContent.SpaceBetween" Style="height: 100%;">
+    <RadzenStack Gap="20px" Orientation="Orientation.Vertical" JustifyContent="JustifyContent.SpaceBetween" Style="height: 100%;" class="pt-20 pr-32 pl-32 flex-column flex-wrap">
         <RadzenStack>
             <RadzenRow>
-                <RadzenRow Size="14" SizeMD="8" class="rz-p-4 rz-border-radius-1" Style="border: var(--rz-grid-cell-border); width: 100%; max-width: 100%">
+                <RadzenRow Size="14" SizeMD="8" class="p-4 flex-column flex-row rz-border-radius-1" Style="border: var(--rz-grid-cell-border); width: 100%; max-width: 100%">
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="100">
                         <RadzenStack Gap="0" class="rz-text-truncate">
                             <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Name</RadzenText>
@@ -31,18 +31,18 @@ else
                             <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate" Visible="@(disabled)"><b>@(recipe.Difficulty)</b></RadzenText>
                             <RadzenNumeric @bind-Value="recipe.Difficulty" Visible="@(!disabled)" />
                         </RadzenStack>
-                        <RadzenStack Gap="0" class="rz-text-truncate">
+                        <RadzenStack Gap="0" >
                             <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Time</RadzenText>
                             <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate" Visible="@(disabled)"><b>@(recipe.Time)</b></RadzenText>
                             <RadzenNumeric @bind-Value="recipe.Time" Visible="@(!disabled)" />
                         </RadzenStack>
-                        <RadzenStack Gap="0" class="rz-text-truncate">
+                        <RadzenStack Gap="0" >
                             <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Cost</RadzenText>
                             <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate"><b>@(recipe.Cost)</b></RadzenText>
                         </RadzenStack>
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Back to Recipes" Click="@NavigateToRecipes" class="rz-pl-4"/>
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Edit" Click="@OnClickEditRecipeInfo" class="rz-pl-4" Visible="@(disabled)" />
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Save" Click="@OnClickSaveRecipeInfo" class="rz-pl-4" Visible="@(!disabled)" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Back to Recipes" Click="@NavigateToRecipes"  />
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Edit" Click="@OnClickEditRecipeInfo"  Visible="@(disabled)" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Save" Click="@OnClickSaveRecipeInfo"  Visible="@(!disabled)" />
                     </RadzenStack>
                 </RadzenRow>
             </RadzenRow>

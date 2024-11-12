@@ -39,9 +39,13 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
             }
 
         }
-        void OnClickViewShoppingList()
+        void OnClickEditShoppingList()
         {
             NavigationManager.NavigateTo($"mykitchen/editshoppinglist?shoppinglistid={selectedShoppingList}");
+        }
+        void OnClickViewShoppingList()
+        {
+            NavigationManager.NavigateTo($"mykitchen/myshoppinglist/view?shoppinglistid={selectedShoppingList}");
         }
         async Task OnCreateRow(UserShoppingList shoppingList)
         {
@@ -72,7 +76,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
             disableAdd = false;
             shoppingListGrid.CancelEditRow(shoppingList);
         }
-        async Task OnEditShoppingList (UserShoppingList shoppingList)
+        void OnEditShoppingList (UserShoppingList shoppingList)
         {
             NavigationManager.NavigateTo($"/myrecipes/editrecipe?shoppingListid={shoppingList.ShoppingListId}&UserId={UserId}");
         }

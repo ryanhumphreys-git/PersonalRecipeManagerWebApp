@@ -51,20 +51,26 @@ else
     }
     else
     {
-        <p> </p>
-        <br />
-        <h2>You are in the @(selectedShoppingList.Name).</h2>
+        <div class="pt-16 pr-32 pl-32">
+        <h3 class="pb-4">Shopping List Name: @(selectedShoppingList.Name).</h3>
+        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="View Shopping List" Click="@OnClickViewShoppingList" class="mb-4"/>
         <RadzenDataGrid @ref="ingredientsGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
                         AllowPaging="true" TItem="ShoppingListIngredients" FilterMode="FilterMode.Simple" Data="@shoppingListIngredients" EditMode="DataGridEditMode.Single"
-                        RowCreate="@OnCreateIngredientRow">
+                            RowCreate="@OnCreateIngredientRow" class="mt-4" Density="Density.Compact">
 
             <HeaderTemplate>
                 <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Ingredient" Click="@InsertIngredientRow" Disabled="@disableAdd" />
             </HeaderTemplate>
             <Columns>
                 <RadzenDataGridColumn TItem="ShoppingListIngredients" Property="Name" Title="Name">
+                    <Template Context="kitchen">
+                        @ingredientNames.FirstOrDefault(t => t.Id == kitchen.IngredientId)?.Name
+                    </Template>
                     <EditTemplate Context="shoppingListIngredients">
-                        <RadzenDropDown @bind-Value="shoppingListIngredients.IngredientId" Change="@(args => OnIngredientSelectionChange(args, shoppingListIngredients))" Data="@FilteredIngredientList" ValueProperty="Id" TextProperty="Name" Style="width:200px; display: block" Name="Name" aria-label="Enter Name" />
+                        <RadzenDropDown @bind-Value="shoppingListIngredients.IngredientId" 
+                                        Change="@(args => OnIngredientSelectionChange(args, shoppingListIngredients))" 
+                                        Data="@FilteredIngredientList" ValueProperty="Id" TextProperty="Name" Style="width:200px; display: block" 
+                                        Name="Name" aria-label="Enter Name" />
                         <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
                     </EditTemplate>
                 </RadzenDataGridColumn>
@@ -91,13 +97,16 @@ else
         </RadzenDataGrid>
         <RadzenDataGrid @ref="equipmentGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
                         AllowPaging="true" TItem="ShoppingListEquipment" FilterMode="FilterMode.Simple" Data="@shoppingListEquipment" EditMode="DataGridEditMode.Single"
-                        RowCreate="@OnCreateEquipmentRow">
+                            RowCreate="@OnCreateEquipmentRow" class="mt-12" Density="Density.Compact">
 
             <HeaderTemplate>
                 <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add Additional Equipment" Click="@InsertEquipmentRow" Disabled="@disableAdd" />
             </HeaderTemplate>
             <Columns>
                 <RadzenDataGridColumn TItem="ShoppingListEquipment" Property="Name" Title="Name">
+                    <Template Context="kitchen">
+                        @equipmentNames.FirstOrDefault(t => t.Id == kitchen.EquipmentId)?.Name
+                    </Template>
                     <EditTemplate Context="shoppingListEquipment">
                         <RadzenDropDown @bind-Value="shoppingListEquipment.EquipmentId" Data="@FilteredEquipmentList" ValueProperty="EquipmentId" TextProperty="Name" Style="width:200px; display: block" Name="Name" aria-label="Enter Name" />
                         <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
@@ -125,6 +134,7 @@ else
             </Columns>
 
         </RadzenDataGrid>
+        </div>
     }
 }
 

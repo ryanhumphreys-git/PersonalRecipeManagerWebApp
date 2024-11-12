@@ -47,12 +47,15 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
         private List<Equipment> FilteredEquipmentList =>
             allEquipment.Where(e => !equipmentIds.Contains(e.Id)).ToList();
 
+        private List<Ingredients> ingredientNames =>
+            allIngredients.Where(e => ingredientIds.Contains(e.Id)).ToList();
+        private List<Equipment> equipmentNames =>
+            allEquipment.Where(e => equipmentIds.Contains(e.Id)).ToList();
         protected override async Task OnInitializedAsync()
         {
             await base.OnInitializedAsync();
 
             selectedShoppingList = await InteractionService.RetrieveShoppingListByShoppingListIdAsync(ShoppingListId);
-            // continue from here
             shoppingListIngredients = await InteractionService.RetrieveShoppingListIngredientsByShoppingListIdAsync(ShoppingListId);
             if (shoppingListIngredients is null)
             {
@@ -86,6 +89,11 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
             }
 
             isLoading = false;
+        }
+
+        void OnClickViewShoppingList()
+        {
+            NavigationManager.NavigateTo($"/mykitchen/myshoppinglist/view?shoppinglistid={ShoppingListId}");
         }
 
         void OnIngredientSelectionChange(object value, ShoppingListIngredients ingredient)

@@ -13,8 +13,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
     public partial class RecipeSelect
     {
         [Inject] NotificationService NotificationService { get; set; }
-        [SupplyParameterFromQuery]
-        private Guid UserId { get; set; }
+        [SupplyParameterFromQuery] private Guid UserId { get; set; }
         [Inject] IHandleMealDbApi mealService { get; set; }
         [Inject] IHandleInteractionService storageService { get; set; }
         private IList<MealsDbSearchCleaned> recipes { get; set; }

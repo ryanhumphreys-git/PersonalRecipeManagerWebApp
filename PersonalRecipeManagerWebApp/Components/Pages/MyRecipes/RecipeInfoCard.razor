@@ -48,10 +48,6 @@ else
                 <RadzenDataGrid @ref="ingredientsGrid"
                                 AllowPaging="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TItem="RecipeIngredientsViewModel"
                                 Data="@(recipeIngredients)" ColumnWidth="200px" Density="Density.Compact" AllowAlternatingRows="false">
-
-                    <HeaderTemplate>
-                        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add Additional Equipment" Click="@InsertRowIngredient" Disabled="@disableAdd" />
-                    </HeaderTemplate>
                     <Columns>
                         <RadzenDataGridColumn TItem="RecipeIngredientsViewModel" Width="80px" Property="Name" Title="Name">
                             <EditTemplate Context="recipeIngredientsDto">
@@ -79,10 +75,6 @@ else
                 <RadzenDataGrid @ref="equipmentGrid" AllowPaging="true"
                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Data="@(recipeEquipment)" ColumnWidth="200px"
                                 Density="Density.Compact" AllowAlternatingRows="false" TItem="RecipeEquipmentViewModel" >
-
-                    <HeaderTemplate>
-                        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add Additional Equipment" Click="@InsertRowEquipment" Disabled="@disableAdd" />
-                    </HeaderTemplate>
                     <Columns>
                         <RadzenDataGridColumn TItem="RecipeEquipmentViewModel" Width="80px" Property="Name" Title="Name">
                             <EditTemplate Context="recipeEquipmentDto">

@@ -34,9 +34,9 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
 
             await base.OnInitializedAsync();
         }
-        async Task OpenAddNewRecipe()
+        void OpenAddNewRecipe()
         {
-            NavigationManager.NavigateTo($"/myrecipes/addnewrecipe?UserId={UserId}");
+            NavigationManager.NavigateTo($"/myrecipes/editrecipe?UserId={UserId}&isnew=true");
         }
         void OpenEditRecipe(Recipe recipe)
         {

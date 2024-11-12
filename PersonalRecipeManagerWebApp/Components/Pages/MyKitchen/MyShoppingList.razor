@@ -7,15 +7,15 @@
 
 <PageTitle>MyShoppingList</PageTitle>
 
+<div class="pt-20 pr-32 pl-32">
 <h1>My Shopping List</h1>
-<p> </p>
-<br />
 
-<RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center">
+<RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" >
     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center">
-        <RadzenLabel Text="Select" />
+        <RadzenLabel Text="Selected Shopping List" />
         <RadzenDropDown @bind-Value=@selectedShoppingList Data="@userShoppingLists" ValueProperty="ShoppingListId" TextProperty="Name" />
-        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="View Selected Kitchen" Click="@OnClickViewShoppingList" />
+        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Edit" Click="@OnClickEditShoppingList" />
+        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="View" Click="@OnClickViewShoppingList" />
     </RadzenStack>
     <RadzenDataGrid @ref="shoppingListGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
                     AllowPaging="true" TItem="UserShoppingList" FilterMode="FilterMode.Simple" Data="@userShoppingLists" EditMode="DataGridEditMode.Single"
@@ -52,4 +52,5 @@
     <br />
 
 </RadzenStack>
+</div>
 

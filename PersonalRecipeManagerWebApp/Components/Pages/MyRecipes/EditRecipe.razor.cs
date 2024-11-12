@@ -10,6 +10,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
 {
     public partial class EditRecipe
     {
+        [SupplyParameterFromQuery] public bool isNew { get; set; }
         [SupplyParameterFromQuery] public Guid RecipeId { get; set; }
         [SupplyParameterFromQuery] public Guid UserId { get; set; }
         [Parameter] public bool ShowClose { get; set; } = true;
@@ -44,17 +45,30 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
         {
             isLoading = true;
 
-            recipe = await InteractionService.RetrieveRecipeByIdAsync(RecipeId);
+            if (isNew)
+            {
+                recipe = new(Guid.NewGuid());
+                recipeIngredients = new();
+                recipeEquipment = new();
 
+                disabled = false;
+            }
+            else
+            {
+                recipe = await InteractionService.RetrieveRecipeByIdAsync(RecipeId);
+                recipeIngredients = await InteractionService.RetrieveRecipeIngredientsDtoByRecipeIdAsync(RecipeId);
+                recipeEquipment = await InteractionService.RetrieveRecipeEquipmentDtoByRecipeIdAsync(RecipeId);
+
+                ingredientIds = recipeIngredients.Select(e => e.Id).ToList();
+                equipmentIds = recipeEquipment.Select(e => e.Id).ToList();
+            }
 
             allIngredients = await InteractionService.RetrieveAllWarehouseIngredientsAsync();
-            recipeIngredients = await InteractionService.RetrieveRecipeIngredientsDtoByRecipeIdAsync(RecipeId);
-            ingredientIds = recipeIngredients.Select(e => e.Id).ToList();
-
-            recipeEquipment = await InteractionService.RetrieveRecipeEquipmentDtoByRecipeIdAsync(RecipeId);
+            
+                        
             allEquipment = await InteractionService.RetrieveAllWarehouseEquipmentAsync();
-            equipmentIds = recipeEquipment.Select(e => e.Id).ToList();
-
+            
+                        
             isLoading = false;
         }
 
@@ -67,16 +81,16 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
         {
             disabled = true;
             await InteractionService.UpsertRecipeAsync(recipe);
+            await InteractionService.AddUserRecipeAsync(new()
+            {
+                RecipeId = recipe.Id,
+                UserId = UserId,
+            });
         }
 
         void NavigateToRecipes()
         {
-            // NavigationManager.NavigateTo($"/myrecipes?userId={UserId}");
-            var url = $"/myrecipes?userId={UserId}";
-            Console.Write( url );
-            NavigationManager.NavigateTo(url);
-            // Path = "@($" / myrecipes ? userid ={ userId}")"
-
+            NavigationManager.NavigateTo($"/myrecipes?userId={UserId}");
         }
 
         async Task OnCreateRowEquipment(RecipeEquipmentViewModel equipment)
@@ -92,7 +106,6 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
                 NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to save {equipment.Name} to your kitchen");
             }
         }
-
         async Task InsertRowEquipment()
         {
             insertingRow = true;

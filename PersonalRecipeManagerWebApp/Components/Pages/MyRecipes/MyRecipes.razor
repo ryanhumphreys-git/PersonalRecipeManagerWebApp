@@ -17,8 +17,9 @@
 }
 else
 {
+    <div class="pt-16 pr-32 pl-32">
     <RadzenDataGrid @ref="recipeGrid" AllowFiltering="true" FilterMode="FilterMode.Simple" AllowPaging="true" PageSize="5" AllowSorting="true"
-                    Data="@recipes" TItem="Recipe" EditMode="DataGridEditMode.Single"
+                    Data="@recipes" TItem="Recipe" EditMode="DataGridEditMode.Single" Density="Density.Compact"
                     FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
         <HeaderTemplate>
             <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Recipe" Click="@OpenAddNewRecipe" />
@@ -61,4 +62,5 @@ else
             </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
+    </div>
 }

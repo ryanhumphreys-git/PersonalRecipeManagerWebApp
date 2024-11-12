@@ -1,0 +1,32 @@
+﻿@page "/mykitchen/myshoppinglist/view"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using PersonalRecipeManagerWebApp.Models
+@using PersonalRecipeManagerWebApp.Data
+@using PersonalRecipeManagerWebApp.Services
+
+<PageTitle>ViewShoppingList</PageTitle>
+
+<h1>View Shopping List</h1>
+<p> </p>
+<br />
+@if (shoppingListViewModel.Count() == 0)
+{
+    <p>There are no items in this shopping list.</p>
+}
+else
+{
+    <RadzenCheckBoxList @bind-Value=@items TValue="ShoppingListViewModel" Orientation="Orientation.Vertical" AllowSelectAll="false">
+        <Items>
+                @foreach(var i in shoppingListViewModel)
+                {
+                        <RadzenCheckBoxListItem Value="i">
+                            <Template>
+                                <RadzenNumeric Value="@i.Quantity" class="rz-numeric w-16" />
+                                <span class="p-2">@i.Name</span>
+                            </Template>
+                        </RadzenCheckBoxListItem>
+                }
+        </Items>
+    </RadzenCheckBoxList>
+}

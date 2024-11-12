@@ -8,8 +8,12 @@ namespace PersonalRecipeManagerWebApp.Services
         public async ValueTask<bool> AddUserRecipeAsync(UserRecipes recipe)
         {
             bool isSuccessful = false;
-            UserRecipes insertUserRecipes = await _broker.InsertUserRecipeAsync(recipe);
-            if (insertUserRecipes is not null) isSuccessful = true;
+            UserRecipes recipeExists = await _broker.SelectUserRecipesByIdAsync(recipe.RecipeId.GetValueOrDefault(), recipe.UserId.GetValueOrDefault());
+            if (recipeExists is null)
+            {
+                UserRecipes insertUserRecipes = await _broker.InsertUserRecipeAsync(recipe);
+                if (insertUserRecipes is not null) isSuccessful = true;
+            }
             return isSuccessful;
         }
         public async ValueTask<User> RetrieveUserInformationByIdAsync(Guid id)

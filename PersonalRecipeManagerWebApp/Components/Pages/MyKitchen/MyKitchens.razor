@@ -9,7 +9,7 @@
 <p> </p>
 <br/>
 
-<RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" >
+<RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" class="pt-20 pl-32 pr-32">
     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center">
         <RadzenLabel Text="Select" />
         <RadzenDropDown @bind-Value=@selectedKitchen Data="@userKitchens" ValueProperty="Id" TextProperty="Name" />
@@ -17,7 +17,7 @@
     </RadzenStack>
     <RadzenDataGrid @ref="kitchenGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
                     AllowPaging="true" TItem="Kitchen" FilterMode="FilterMode.Simple" Data="@userKitchens" EditMode="DataGridEditMode.Single"
-                    RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+                    RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" Density="Density.Compact">
 
         <HeaderTemplate>
             <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Kitchen" Click="@InsertRow" Disabled="@disableAdd" />

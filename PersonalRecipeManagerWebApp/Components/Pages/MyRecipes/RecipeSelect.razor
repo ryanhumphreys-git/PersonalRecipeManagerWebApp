@@ -1,12 +1,12 @@
-﻿@page "/recipes/select"
+﻿@page "/myrecipes/select"
 @rendermode InteractiveServer
 @using PersonalRecipeManagerWebApp.Models.RecipeApi
 
 <h3>Recipe Select</h3>
 
 
-
-<RadzenStack Orientation="Orientation.Vertical">
+<div class="pt-20 pr-32 pl-32">
+<RadzenStack Orientation="Orientation.Vertical" >
     <RadzenText>Search Recipes</RadzenText>
     <RadzenStack Orientation="Orientation.Horizontal">
         <RadzenTextBox Pleceholder="Search..." @bind-Value="searchValue" Style="width: 300px" aria-label="Default TextBox" />
@@ -21,6 +21,7 @@
 }
 else
 {
+        
     <RadzenDataGrid @ref="searchResultGrid" AllowPaging="true" PageSize="10" AllowSorting="true" Data="@recipes"
                     SelectionMode="DataGridSelectionMode.Single" @bind-Value=@selectedRecipe
                     Density="Density.Compact" Style="width: 600px">
@@ -34,3 +35,4 @@ else
     <RadzenButton Click="@(args => OnClickConfirm())" Text="Add Recipe" ButtonStyle="ButtonStyle.Success" Disabled="@(selectedRecipe is null)"
                   Style="width: 100px"/>
 </RadzenStack>
+</div>

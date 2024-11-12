@@ -14,7 +14,7 @@
 
 <RadzenDataGrid @ref="equipmentGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
                 AllowPaging="true" TItem="Equipment" FilterMode="FilterMode.Simple" Data="@allEquipment" EditMode="DataGridEditMode.Single"
-                RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+                RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" class="mt-20 mr-32 ml-32" Density="Density.Compact">
 
     <HeaderTemplate>
         <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Equipment" Click="@InsertRow" Disabled="@disableAdd" />

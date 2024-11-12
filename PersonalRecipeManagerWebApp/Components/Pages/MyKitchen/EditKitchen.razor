@@ -49,12 +49,11 @@ else
     }
     else
     {
-        <p> </p>
-        <br/>
-        <h2>You are in the @(selectedKitchen.Name).</h2>
+        <div class="mt-16 ml-32 mr-32">
+        <h3 class="ml-16">You are in the @(selectedKitchen.Name).</h3>
         <RadzenDataGrid @ref="ingredientsGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
                         AllowPaging="true" TItem="KitchenIngredientsViewModel" FilterMode="FilterMode.Simple" Data="@userIngredients" EditMode="DataGridEditMode.Single"
-                        RowUpdate="@OnUpdateIngredientRow" RowCreate="@OnCreateIngredientRow">
+                        RowUpdate="@OnUpdateIngredientRow" RowCreate="@OnCreateIngredientRow" class="mt-20 mr-32 ml-32" Density="Density.Compact">
 
             <HeaderTemplate>
                 <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Ingredient" Click="@InsertIngredientRow" Disabled="@disableAdd" />
@@ -93,7 +92,7 @@ else
         </RadzenDataGrid>
         <RadzenDataGrid @ref="equipmentGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
                         AllowPaging="true" TItem="KitchenEquipmentViewModel" FilterMode="FilterMode.Simple" Data="@userEquipment" EditMode="DataGridEditMode.Single"
-                        RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+                            RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" class=" mt-20 mr-32 ml-32" Density="Density.Compact">
 
             <HeaderTemplate>
                 <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add Additional Equipment" Click="@InsertEquipmentRow" Disabled="@disableAdd" />
@@ -129,6 +128,7 @@ else
             </Columns>
 
         </RadzenDataGrid>
+        </div>
     }
 }
 
