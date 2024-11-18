@@ -15,7 +15,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
         [Inject] NotificationService NotificationService { get; set; }
         [SupplyParameterFromQuery] private Guid UserId { get; set; }
         [Inject] IHandleMealDbApi mealService { get; set; }
-        [Inject] IHandleInteractionService storageService { get; set; }
+        [Inject] IHandleInteractionService InteractionService { get; set; }
         private IList<MealsDbSearchCleaned> recipes { get; set; }
         private string searchValue { get; set; }
         private IList<MealsDbSearchCleaned> selectedRecipe;
@@ -55,8 +55,8 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
                 return;
             }
             MealsDbSearchCleaned recipeSelected = selectedRecipe[0];
-            bool recipeExists = await storageService.CheckIfRecipeExistsByName(recipeSelected.Name);
-            if (recipeExists)
+            Recipe recipeExists = await InteractionService.CheckIfRecipeExistsByName(recipeSelected.Name);
+            if (recipeExists.Name is not null && recipeExists.Instructions is not null)
             {
                 NotificationService.Notify(new NotificationMessage
                 {
@@ -66,33 +66,46 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
                     Duration = 6000
                 });
             }
+            else if(recipeExists.Instructions is null)
+            {
+                recipeExists.Instructions = recipeSelected.Instructions;
+                await InteractionService.UpsertRecipeAsync(recipeExists);
+
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Success,
+                    Summary = "Alert",
+                    Detail = "Recipe has been updated",
+                    Duration = 6000
+                });
+            }
             else
             {
-                Recipe selectedRecipeType = await storageService.AddRecipeFromMealDb(selectedRecipe);
+                Recipe selectedRecipeType = await InteractionService.AddRecipeFromMealDb(selectedRecipe);
                 if (selectedRecipeType is null)
                 {
                     NotificationService.Notify(NotificationSeverity.Error, "Error", "Unable to add this recipe");
                     return;
                 }
-                bool addToWarehouse = await storageService.AddWarehouseIngredientFromMealDbAsync(recipeSelected);
+                bool addToWarehouse = await InteractionService.AddWarehouseIngredientFromMealDbAsync(recipeSelected);
                 if (addToWarehouse is false)
                 {
                     NotificationService.Notify(NotificationSeverity.Error, "Error", "Unable to add all ingredients to warehouse, transaction rolled back and recipe removed");
-                    await storageService.RemoveRecipeAsync(selectedRecipeType);
+                    await InteractionService.RemoveRecipeAsync(selectedRecipeType);
                     return;
                 }
-                bool addToRecipeIngredients = await storageService.AddRecipeIngredientsFromMealDbAsync(recipeSelected, selectedRecipeType);
+                bool addToRecipeIngredients = await InteractionService.AddRecipeIngredientsFromMealDbAsync(recipeSelected, selectedRecipeType);
                 if (addToRecipeIngredients is false)
                 {
                     NotificationService.Notify(NotificationSeverity.Error, "Error", "Unable to add all recipe ingredients, transaction rolled back and recipe removed");
-                    await storageService.RemoveRecipeAsync(selectedRecipeType);
+                    await InteractionService.RemoveRecipeAsync(selectedRecipeType);
                     return;
                 }
-                bool addUserRecipe = await storageService.AddUserRecipeFromMealDbAsync(UserId, selectedRecipeType);
+                bool addUserRecipe = await InteractionService.AddUserRecipeFromMealDbAsync(UserId, selectedRecipeType);
                 if (addUserRecipe is false)
                 {
                     NotificationService.Notify(NotificationSeverity.Error, "Error", "Unable to add recipe to user, recipe removed");
-                    await storageService.RemoveRecipeAsync(selectedRecipeType);
+                    await InteractionService.RemoveRecipeAsync(selectedRecipeType);
                     return;
                 }
 

@@ -28,13 +28,13 @@
         
             <RadzenStack Orientation="Orientation.Vertical" Wrap="FlexWrap.Wrap" Gap="1rem">
                 <RadzenFormField Text="Name" Variant="Variant.Outlined" Style="flex: 1;">
-                    <RadzenTextBox @bind-Value="@user.Name" Disabled="@disabled" />
+                    <RadzenTextBox @bind-Value="@user.Name" Disabled="@(!disabled)" />
                 </RadzenFormField>
                 <RadzenFormField Text="Age" Variant="Variant.Outlined" Style="flex: 1;">
-                    <RadzenNumeric @bind-Value="@user.Age" Disabled="@disabled" />
+                    <RadzenNumeric @bind-Value="@user.Age" Disabled="@(!disabled)" />
                 </RadzenFormField>
                 <RadzenFormField Text="Cooking Skill" Variant="Variant.Outlined" Style="flex: 1;">
-                    <RadzenNumeric @bind-Value="@user.CookingSkill" Disabled="@disabled" />
+                    <RadzenNumeric @bind-Value="@user.CookingSkill" Disabled="@(!disabled)" />
                 </RadzenFormField>
             </RadzenStack>
 

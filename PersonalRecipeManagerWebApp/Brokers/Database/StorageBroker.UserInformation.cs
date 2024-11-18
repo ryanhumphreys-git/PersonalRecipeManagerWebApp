@@ -19,6 +19,8 @@ namespace PersonalRecipeManagerWebApp.Brokers
         }
         public async ValueTask<User> UpdateUserInformationAsync(User user) =>
             await UpdateAsync(user);
+        public async ValueTask<UserKitchen> InsertUserKitchenAsync(UserKitchen kitchen) =>
+            await InsertAsync(kitchen);
     }
 }
 

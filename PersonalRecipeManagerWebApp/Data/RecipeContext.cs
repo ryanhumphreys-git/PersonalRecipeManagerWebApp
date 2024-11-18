@@ -48,9 +48,7 @@ public partial class RecipeContext : DbContext
 
         modelBuilder.Entity<UserKitchen>(user =>
         {
-            user.HasKey(e => e.AutoId).HasName("PK__UserKi__6B232905495BDECC");
-
-            user.Property(e => e.AutoId).ValueGeneratedNever();
+            user.HasKey(e => new { e.UserId, e.KitchenId}).HasName("PK_UserKitchens");
 
             user.HasOne(d => d.User).WithMany(p => p.UserKitchens)
                 .HasForeignKey(d => d.UserId)
@@ -188,6 +186,7 @@ public partial class RecipeContext : DbContext
             user.Property(e => e.Id).ValueGeneratedNever();
             user.Property(e => e.Name).HasMaxLength(50);
             user.Property(e => e.Time).HasColumnType("decimal(18, 0)");
+            user.Property(e => e.Instructions).HasColumnType("NVARCHAR(MAX)");
         });
 
         modelBuilder.Entity<UserShoppingList>(user =>

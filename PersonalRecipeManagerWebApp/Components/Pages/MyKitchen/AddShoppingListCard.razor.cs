@@ -10,5 +10,6 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
         {
             dialogService.Close(shoppingListName);
         }
+
     }
 }

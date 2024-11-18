@@ -42,7 +42,7 @@ else
             <RadzenStack  JustifyContent="JustifyContent.Start" Orientation="Orientation.Horizontal" Gap="12px">
                 <RadzenStack Orientation="Orientation.Vertical" Gap="2px">
                     <RadzenText class="font-bold text-blue-600 font-mono">Ingredients:</RadzenText>
-                    <ul style="list-style-type:circle; padding-left:40px">
+                    <ul class="list-disc pl-10">
                     @foreach(RecipeIngredientsViewModel item in recipeIngredients)
                     {
                         <li>@item.Quantity @item.UnitOfMeasurement of @item.Name</li>
@@ -52,7 +52,7 @@ else
                 
                 <RadzenStack Orientation="Orientation.Vertical" Gap="2px">
                     <RadzenText class="font-bold text-blue-600 font-mono">Equipment:</RadzenText>
-                    <ul style="list-style-type:circle; padding-left:40px">
+                    <ul class="list-disc pl-10">
                     @foreach (RecipeEquipmentViewModel item in recipeEquipment)
                     {
                         <li>@item.Quantity @item.Name</li>
@@ -61,10 +61,14 @@ else
                 </RadzenStack>
             </RadzenStack>
             <RadzenText class="font-bold text-blue-600 font-mono">Instructions</RadzenText>
+            <RadzenText>@recipe.Instructions</RadzenText>
             @*TODO: ADD INSTRUCTIONS TO DB AND DISPLAY ON RECIPE PAGE
                        LOOK INTO MORE UI IMPROVEMENTS *@
         </div>
     </div>
+    <RadzenStack Visible="@ShowClose" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+        <RadzenButton Click="@((args) => dialogService.Close(true))" Variant="Variant.Flat" Text="Close" Style="width: 120px" />
+    </RadzenStack>
 
 
 
@@ -127,7 +131,5 @@ else
                     </Columns>
                 </RadzenDataGrid>
             </RadzenStack>
-        <RadzenStack Visible="@ShowClose" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
-            <RadzenButton Click="@((args) => dialogService.Close(true))" Variant="Variant.Flat" Text="Close" Style="width: 120px" />
-        </RadzenStack> *@
+         *@
 }
