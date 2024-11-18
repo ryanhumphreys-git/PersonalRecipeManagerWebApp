@@ -1,0 +1,24 @@
+﻿@page "/select-kitchen-dialog"
+@inject DialogService DialogService
+@using PersonalRecipeManagerWebApp.Models
+@using PersonalRecipeManagerWebApp.Services
+@inject IHandleInteractionService InteractionService
+
+<RadzenDropDown @bind-Value="@SelectedKitchenId" Data="@KitchenNames" TextProperty="Name" ValueProperty="Id" Style="width:100%" />
+<RadzenButton Text="Select" Click="@OnSelectKitchen" />
+
+@code {
+    [CascadingParameter] public Guid UserId { get; set; }
+    private List<Kitchen> KitchenNames = new List<Kitchen>();
+    private Guid SelectedKitchenId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        KitchenNames = await InteractionService.RetrieveAllUserKitchensAsync(UserId);
+    }
+
+    private void OnSelectKitchen()
+    {
+        DialogService.Close(SelectedKitchenId);
+    }
+}

@@ -16,31 +16,66 @@
 }
 else
 {
-    <RadzenStack Gap="1rem" Orientation="Orientation.Vertical" JustifyContent="JustifyContent.SpaceBetween" Style="height: 100%;">
-        <RadzenStack>
-            <RadzenRow>
-                <RadzenRow Size="14" SizeMD="8" class="rz-p-4 rz-border-radius-1" Style="border: var(--rz-grid-cell-border); width: 600px" >
-                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="100">
-                        <RadzenStack Gap="0" class="rz-text-truncate">
-                            <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Name</RadzenText>
-                            <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate"><b>@(recipe.Name)</b></RadzenText>
-                        </RadzenStack>
-                        <RadzenStack Gap="0" class="rz-text-truncate">
-                            <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Difficulty</RadzenText>
-                            <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate"><b>@(recipe.Difficulty)</b></RadzenText>
-                        </RadzenStack>
-                        <RadzenStack Gap="0" class="rz-text-truncate">
-                            <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Time</RadzenText>
-                            <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate"><b>@(recipe.Time)</b></RadzenText>
-                        </RadzenStack>
-                        <RadzenStack Gap="0" class="rz-text-truncate">
-                            <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Cost</RadzenText>
-                            <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate"><b>@(recipe.Cost)</b></RadzenText>
-                        </RadzenStack>
-                    </RadzenStack>
-                </RadzenRow>
-            </RadzenRow>
-            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+    <div class="text-center">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" class="text-center border-2 border-grey-100 rounded-lg"
+                        JustifyContent="JustifyContent.SpaceAround">
+            <RadzenStack Gap="0" class="rz-text-truncate">
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Name</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate"><b>@(recipe.Name)</b></RadzenText>
+            </RadzenStack>
+            <RadzenStack Gap="0" class="rz-text-truncate">
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Difficulty</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate"><b>@(recipe.Difficulty)</b></RadzenText>
+            </RadzenStack>
+            <RadzenStack Gap="0" class="rz-text-truncate">
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Time</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate"><b>@(recipe.Time)</b></RadzenText>
+            </RadzenStack>
+            <RadzenStack Gap="0" class="rz-text-truncate">
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Cost</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate"><b>$@(recipe.Cost)</b></RadzenText>
+            </RadzenStack>
+        </RadzenStack>
+    </div>
+    <div>
+        <div class="mt-4 space-y-8">
+            <RadzenStack  JustifyContent="JustifyContent.Start" Orientation="Orientation.Horizontal" Gap="12px">
+                <RadzenStack Orientation="Orientation.Vertical" Gap="2px">
+                    <RadzenText class="font-bold text-blue-600 font-mono">Ingredients:</RadzenText>
+                    <ul style="list-style-type:circle; padding-left:40px">
+                    @foreach(RecipeIngredientsViewModel item in recipeIngredients)
+                    {
+                        <li>@item.Quantity @item.UnitOfMeasurement of @item.Name</li>
+                    }
+                    </ul>
+                </RadzenStack>
+                
+                <RadzenStack Orientation="Orientation.Vertical" Gap="2px">
+                    <RadzenText class="font-bold text-blue-600 font-mono">Equipment:</RadzenText>
+                    <ul style="list-style-type:circle; padding-left:40px">
+                    @foreach (RecipeEquipmentViewModel item in recipeEquipment)
+                    {
+                        <li>@item.Quantity @item.Name</li>
+                    }
+                    </ul>
+                </RadzenStack>
+            </RadzenStack>
+            <RadzenText class="font-bold text-blue-600 font-mono">Instructions</RadzenText>
+            @*TODO: ADD INSTRUCTIONS TO DB AND DISPLAY ON RECIPE PAGE
+                       LOOK INTO MORE UI IMPROVEMENTS *@
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+            @* <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
                 <RadzenText TextStyle="TextStyle.Subtitle1" class="rz-m-0">@recipe.Name Cost</RadzenText>
                 <RadzenBadge BadgeStyle="BadgeStyle.Secondary" Text=@($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", recipe.Cost)}") />
             </RadzenStack>
@@ -92,9 +127,7 @@ else
                     </Columns>
                 </RadzenDataGrid>
             </RadzenStack>
-        </RadzenStack>
         <RadzenStack Visible="@ShowClose" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
             <RadzenButton Click="@((args) => dialogService.Close(true))" Variant="Variant.Flat" Text="Close" Style="width: 120px" />
-        </RadzenStack>
-    </RadzenStack>
+        </RadzenStack> *@
 }

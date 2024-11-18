@@ -51,8 +51,8 @@ else
     }
     else
     {
-        <div class="pt-16 pr-32 pl-32">
-        <h3 class="pb-4">Shopping List Name: @(selectedShoppingList.Name).</h3>
+        <div class="text-center pr-32 pl-32">
+            <h1 class="pb-4 text-3xl font-bold">Shopping List: @(selectedShoppingList.Name).</h1>
         <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="View Shopping List" Click="@OnClickViewShoppingList" class="mb-4"/>
         <RadzenDataGrid @ref="ingredientsGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
                         AllowPaging="true" TItem="ShoppingListIngredients" FilterMode="FilterMode.Simple" Data="@shoppingListIngredients" EditMode="DataGridEditMode.Single"

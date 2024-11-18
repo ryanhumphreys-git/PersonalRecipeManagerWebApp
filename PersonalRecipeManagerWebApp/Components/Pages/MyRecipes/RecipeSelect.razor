@@ -2,37 +2,38 @@
 @rendermode InteractiveServer
 @using PersonalRecipeManagerWebApp.Models.RecipeApi
 
-<h3>Recipe Select</h3>
+<div class="text-center justify-items-center">
+    <h3 class="text-3xl font-bold">Recipe Search</h3>
 
 
-<div class="pt-20 pr-32 pl-32">
-<RadzenStack Orientation="Orientation.Vertical" >
-    <RadzenText>Search Recipes</RadzenText>
-    <RadzenStack Orientation="Orientation.Horizontal">
-        <RadzenTextBox Pleceholder="Search..." @bind-Value="searchValue" Style="width: 300px" aria-label="Default TextBox" />
-        <RadzenButton Click="@(args => OnClick())" Text="Search" ButtonStyle="ButtonStyle.Primary" />
-    </RadzenStack>
+    <div class="pt-8 mr-32 ml-32">
+    <RadzenStack Orientation="Orientation.Vertical" >
+        <RadzenStack Orientation="Orientation.Horizontal">
+            <RadzenTextBox Pleceholder="Search..." @bind-Value="searchValue" Style="width: 300px" aria-label="Default TextBox" />
+            <RadzenButton Click="@(args => OnClick())" Text="Search" ButtonStyle="ButtonStyle.Primary" />
+        </RadzenStack>
     
     
 
-@if (recipes is null || !recipes.Any())
-{
-    <p>No search value specified...</p>
-}
-else
-{
+    @if (recipes is null || !recipes.Any())
+    {
+        <p>No search value specified...</p>
+    }
+    else
+    {
         
-    <RadzenDataGrid @ref="searchResultGrid" AllowPaging="true" PageSize="10" AllowSorting="true" Data="@recipes"
-                    SelectionMode="DataGridSelectionMode.Single" @bind-Value=@selectedRecipe
-                    Density="Density.Compact" Style="width: 600px">
-        <Columns>
-            <RadzenDataGridColumn Width="80px" Property="Name" Title="Name"/>
-            <RadzenDataGridColumn Width="50px" Property="Category" Title="Category"/>
-            <RadzenDataGridColumn Width="50px" Property="Region" Title="Area"/>
-        </Columns>
-    </RadzenDataGrid>
-}
-    <RadzenButton Click="@(args => OnClickConfirm())" Text="Add Recipe" ButtonStyle="ButtonStyle.Success" Disabled="@(selectedRecipe is null)"
-                  Style="width: 100px"/>
-</RadzenStack>
+        <RadzenDataGrid @ref="searchResultGrid" AllowPaging="true" PageSize="10" AllowSorting="true" Data="@recipes"
+                        SelectionMode="DataGridSelectionMode.Single" @bind-Value=@selectedRecipe
+                        Density="Density.Compact" Style="width: 600px">
+            <Columns>
+                <RadzenDataGridColumn Width="80px" Property="Name" Title="Name"/>
+                <RadzenDataGridColumn Width="50px" Property="Category" Title="Category"/>
+                <RadzenDataGridColumn Width="50px" Property="Region" Title="Area"/>
+            </Columns>
+        </RadzenDataGrid>
+    }
+        <RadzenButton Click="@(args => OnClickConfirm())" Text="Add Recipe" ButtonStyle="ButtonStyle.Success" Disabled="@(selectedRecipe is null)"
+                      Style="width: 100px"/>
+    </RadzenStack>
+    </div>
 </div>

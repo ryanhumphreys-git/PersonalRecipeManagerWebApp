@@ -49,11 +49,11 @@ else
     }
     else
     {
-        <div class="mt-16 ml-32 mr-32">
-        <h3 class="ml-16">You are in the @(selectedKitchen.Name).</h3>
+        <div class="text-center mt-16 ml-32 mr-32">
+            <h3 class="text-3xl font-bold">You are in the @(selectedKitchen.Name)</h3>
         <RadzenDataGrid @ref="ingredientsGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="5"
                         AllowPaging="true" TItem="KitchenIngredientsViewModel" FilterMode="FilterMode.Simple" Data="@userIngredients" EditMode="DataGridEditMode.Single"
-                        RowUpdate="@OnUpdateIngredientRow" RowCreate="@OnCreateIngredientRow" class="mt-20 mr-32 ml-32" Density="Density.Compact">
+                        RowUpdate="@OnUpdateIngredientRow" RowCreate="@OnCreateIngredientRow" class="mt-8 mr-32 ml-32" Density="Density.Compact">
 
             <HeaderTemplate>
                 <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle" Text="Add New Ingredient" Click="@InsertIngredientRow" Disabled="@disableAdd" />

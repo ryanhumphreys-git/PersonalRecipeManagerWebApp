@@ -1,11 +1,13 @@
 ﻿@inherits LayoutComponentBase
 
+
 <RadzenComponents @rendermode="InteractiveServer"/>
 <RadzenDialog/>
 <RadzenLayout>
+    
     <NavMenu/>
-    <RadzenBody>
-        <div class="rz-p-4">
+    <RadzenBody class="bg-gradient-to-r from-slate-400 via-slate-300 to-blue-400">
+        <div class="mt-16">
             @Body
         </div>
     </RadzenBody>

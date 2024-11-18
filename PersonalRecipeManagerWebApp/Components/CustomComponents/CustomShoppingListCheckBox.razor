@@ -1,0 +1,67 @@
+﻿@using PersonalRecipeManagerWebApp.Models
+
+
+<div class="sm:hidden">
+    <div class="p-2 rounded-lg flex flex-col gap-1">
+        @foreach (ShoppingListViewModel item in ShoppingList)
+        {
+            <div class="grid grid-cols-4 place-content-center items-center">
+                <RadzenCheckBox class="" TValue="bool" @bind-Value="@item.IsSelected" Change="@(args => OnChangeAddSelectedItem(args, item))"/>
+                <span class="justify-start">@item.Name</span>
+                <RadzenLabel class="">@item.Quantity</RadzenLabel>
+                
+                <div class="justify-end">
+                    <RadzenButton Variant="Variant.Text" ButtonStyle="ButtonStyle.Warning" Size="ButtonSize.Small" class="p-2" Text="-" Click="@(args => OnClickDecreaseQuantity(item))" />
+                    <RadzenButton Variant="Variant.Text" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Small" class="p-2" Text="+" Click="@(args => OnClickIncreaseQuantity(item))" />
+                </div>
+            </div>   
+        }
+    </div>
+</div>
+
+<div class="hidden sm:block">
+    <div class="p-2 rounded-lg">
+        @foreach (var i in ShoppingList)
+        {
+            <div class="flex align-middle flex-row justify-between items-center">
+                <RadzenCheckBox class="p-2" TValue="bool" @bind-Value="@i.IsSelected" Change="@(args => OnChangeAddSelectedItem(args, i))" />
+                <span class="p-2">@i.Name</span>
+                <RadzenNumeric @bind-Value="@i.Quantity" Min="0" class="rz-numeric w-16" />
+            </div>
+        }   
+    </div>
+</div>
+
+@code {
+    public bool selection = false;
+    [Parameter]
+    public List<ShoppingListViewModel> CheckedItems { get; set; }
+
+    [Parameter]
+    public List<ShoppingListViewModel> ShoppingList { get; set; }
+    [Parameter]
+    public EventCallback<List<ShoppingListViewModel>> SelectedItemsChanged { get; set; }
+
+    private void OnChangeAddSelectedItem(bool isSelected, ShoppingListViewModel item)
+    {
+        item.IsSelected = isSelected;
+        NotifySelectedItemsChanged();
+    }
+    private void NotifySelectedItemsChanged()
+    {
+        var selectedItems = ShoppingList.Where(i => i.IsSelected).ToList();
+        SelectedItemsChanged.InvokeAsync(selectedItems);
+    }
+    private void OnCheckedItemsChanged(IEnumerable<ShoppingListViewModel> items) => CheckedItems = items.ToList();
+    private void OnClickIncreaseQuantity(ShoppingListViewModel i)
+    {
+        i.Quantity++;
+    }
+    private void OnClickDecreaseQuantity(ShoppingListViewModel i) 
+    {
+        if (i.Quantity > 0)
+        {
+            i.Quantity--;
+        }
+    }
+}

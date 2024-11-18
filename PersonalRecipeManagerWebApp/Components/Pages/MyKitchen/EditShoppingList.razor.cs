@@ -93,7 +93,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
 
         void OnClickViewShoppingList()
         {
-            NavigationManager.NavigateTo($"/mykitchen/myshoppinglist/view?shoppinglistid={ShoppingListId}");
+            NavigationManager.NavigateTo($"/mykitchen/myshoppinglist/view?shoppinglistid={ShoppingListId}&userid={UserId}");
         }
 
         void OnIngredientSelectionChange(object value, ShoppingListIngredients ingredient)

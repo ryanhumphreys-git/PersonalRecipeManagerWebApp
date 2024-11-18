@@ -1,4 +1,5 @@
-﻿using PersonalRecipeManagerWebApp.Models.Ingredients;
+﻿using PersonalRecipeManagerWebApp.Models;
+using PersonalRecipeManagerWebApp.Models.Ingredients;
 
 namespace PersonalRecipeManagerWebApp.Services
 {
@@ -53,6 +54,27 @@ namespace PersonalRecipeManagerWebApp.Services
         {
             var hasIngredient = await _broker.SelectKitchenIngredientByIdAsync(kitchenId, ingredientId);
             return hasIngredient is not null;
+        }
+        public async ValueTask<bool> InsertKitchenIngredientsOrAddQuantityAsync(KitchenIngredients ingredient)
+        {
+            bool isSuccessful = false;
+            KitchenIngredients ingredientsExists = await _broker.SelectKitchenIngredientByIdAsync(ingredient.KitchenId, ingredient.IngredientId);
+
+            if (ingredientsExists is null)
+            {
+                ingredientsExists = new(ingredient.KitchenId, ingredient.IngredientId, ingredient.Quantity);
+                KitchenIngredients insertKitchenIngredient = await _broker.InsertKitchenIngredientAsync(ingredientsExists);
+                if (insertKitchenIngredient is not null) isSuccessful = true;
+            }
+            else
+            {
+                ingredientsExists.IngredientId = ingredient.IngredientId;
+                ingredientsExists.Quantity += ingredient.Quantity;
+
+                KitchenIngredients updateKitchenIngredient = await _broker.UpdateKitchenIngredientAsync(ingredientsExists);
+                if (updateKitchenIngredient is not null) isSuccessful = true;
+            }
+            return isSuccessful;
         }
 
     }

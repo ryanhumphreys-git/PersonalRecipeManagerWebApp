@@ -5,13 +5,11 @@ namespace PersonalRecipeManagerWebApp.Models;
 
 public class ShoppingListViewModel
 {
-    public Guid Id { get; set; }
-    public string Name { get; set; }
-    public List<ShoppingListIngredients> ShoppingListIngredients { get; set; } = new();
+    // ingredients = 1, equipment = 2
+    public int ShoppingListType { get; set; }
+    public Guid ItemId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public double Quantity { get; set; }
+    public bool IsSelected { get; set; } = false;
 
-    public ShoppingListViewModel(Guid id, string name)
-    {
-        Id = id;
-        Name = name;
-    }
 }

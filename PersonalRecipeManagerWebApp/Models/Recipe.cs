@@ -12,6 +12,8 @@ public partial class Recipe
     public double Time { get; set; }
     [NotMapped]
     public double Cost { get; set; }
+    [NotMapped]
+    public string Instructions { get; set; }
     public virtual ICollection<UserRecipes> UserRecipes { get; set; } = new List<UserRecipes>();
     public virtual ICollection<RecipeIngredients> RecipeIngredients { get; set; } = new List<RecipeIngredients>();
     public virtual ICollection<RecipeEquipment> RecipeEquipment { get; set; } = new List<RecipeEquipment>();

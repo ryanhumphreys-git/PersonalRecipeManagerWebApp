@@ -41,11 +41,11 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
         }
         void OnClickEditShoppingList()
         {
-            NavigationManager.NavigateTo($"mykitchen/editshoppinglist?shoppinglistid={selectedShoppingList}");
+            NavigationManager.NavigateTo($"mykitchen/editshoppinglist?shoppinglistid={selectedShoppingList}&userid={UserId}");
         }
         void OnClickViewShoppingList()
         {
-            NavigationManager.NavigateTo($"mykitchen/myshoppinglist/view?shoppinglistid={selectedShoppingList}");
+            NavigationManager.NavigateTo($"mykitchen/myshoppinglist/view?shoppinglistid={selectedShoppingList}&userid={UserId}");
         }
         async Task OnCreateRow(UserShoppingList shoppingList)
         {

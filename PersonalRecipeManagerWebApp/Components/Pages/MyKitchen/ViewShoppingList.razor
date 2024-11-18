@@ -4,29 +4,26 @@
 @using PersonalRecipeManagerWebApp.Models
 @using PersonalRecipeManagerWebApp.Data
 @using PersonalRecipeManagerWebApp.Services
+@using PersonalRecipeManagerWebApp.Components.CustomComponents
 
 <PageTitle>ViewShoppingList</PageTitle>
 
-<h1>View Shopping List</h1>
-<p> </p>
-<br />
-@if (shoppingListViewModel.Count() == 0)
-{
-    <p>There are no items in this shopping list.</p>
-}
-else
-{
-    <RadzenCheckBoxList @bind-Value=@items TValue="ShoppingListViewModel" Orientation="Orientation.Vertical" AllowSelectAll="false">
-        <Items>
-                @foreach(var i in shoppingListViewModel)
-                {
-                        <RadzenCheckBoxListItem Value="i">
-                            <Template>
-                                <RadzenNumeric Value="@i.Quantity" class="rz-numeric w-16" />
-                                <span class="p-2">@i.Name</span>
-                            </Template>
-                        </RadzenCheckBoxListItem>
-                }
-        </Items>
-    </RadzenCheckBoxList>
-}
+<div class="pt-8">
+    <div class="bg-white p-3 max-w-md mx-auto">
+        <div class="text-center">
+            <h1 class="text-3xl font-bold">Your Shopping List</h1>
+
+            @if (shoppingListViewModel.Count() == 0)
+            {
+                <p>There are no items in this shopping list.</p>
+            }
+            else
+            {
+                <div class="mt-8">
+                    <CustomShoppingListCheckBox CheckedItems="@items" ShoppingList="@shoppingListViewModel" SelectedItemsChanged="@OnSelectedItemsChanged"></CustomShoppingListCheckBox>
+                    <RadzenButton Text="Finish Shopping" Click="@OnClickSubmitShoppingList" />
+                </div>
+            }
+        </div>
+    </div>
+</div>
