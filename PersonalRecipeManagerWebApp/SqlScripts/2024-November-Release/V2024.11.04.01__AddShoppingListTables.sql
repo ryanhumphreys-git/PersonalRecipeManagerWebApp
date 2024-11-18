@@ -42,7 +42,7 @@ BEGIN TRY
         CONSTRAINT FK_ShoppingListEquipment_UserShoppingList FOREIGN KEY (ShoppingListId) REFERENCES UserShoppingList (ShoppingListId),
         CONSTRAINT FK_ShoppingListEquipment_Equipment FOREIGN KEY (EquipmentId) REFERENCES Equipment (Id)
     );
-
+    
 
     PRINT '.... DONE'
 	PRINT ''

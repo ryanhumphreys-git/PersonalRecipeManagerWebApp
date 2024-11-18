@@ -47,19 +47,16 @@ namespace PersonalRecipeManagerWebApp.Services
         {
             return new Recipe(Guid.NewGuid(), mealDbRecipe.Name, 0, 0);
         }
-        public async ValueTask<bool> CheckIfRecipeExistsByName(string name)
+        public async ValueTask<Recipe> CheckIfRecipeExistsByName(string name)
         {
             Recipe recipeByName = await _broker.SelectRecipeByNameAsync(name);
-            if (recipeByName is null)
-            {
-                return false;
-            }
-            return true;
+            return recipeByName;
         }
         public async ValueTask<Recipe> AddRecipeFromMealDb(IList<MealsDbSearchCleaned> mealDbSearchResults)
         {
             MealsDbSearchCleaned recipeSelection = mealDbSearchResults[0];
             Recipe selectedRecipeType = ConvertMealDbRecipeIntoRecipeType(recipeSelection);
+            selectedRecipeType.Instructions = recipeSelection.Instructions;
             Recipe recipeByName = await _broker.SelectRecipeByNameAsync(recipeSelection.Name);
             if (recipeByName is null)
             {
@@ -67,9 +64,10 @@ namespace PersonalRecipeManagerWebApp.Services
             }
             if (recipeByName is not null)
             {
-                selectedRecipeType.Id = recipeByName.Id;
-                selectedRecipeType.Difficulty = recipeByName.Difficulty;
-                selectedRecipeType.Time = recipeByName.Time;
+                recipeByName.Id = selectedRecipeType.Id;
+                recipeByName.Instructions = selectedRecipeType.Instructions;
+
+                await _broker.UpdateRecipeAsync(recipeByName);
             }
             return selectedRecipeType;
         }

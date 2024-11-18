@@ -55,8 +55,16 @@ namespace PersonalRecipeManagerWebApp.Services
         public async ValueTask<bool> RemoveWarehouseIngredientsAsync(Ingredients ingredients)
         {
             bool isSuccessful = false;
-            Ingredients deleteWarehouseIngredients = await _broker.DeleteWarehouseIngredientsAsync(ingredients);
-            if (deleteWarehouseIngredients is not null) isSuccessful = true;
+            try
+            {
+                Ingredients deleteWarehouseIngredients = await _broker.DeleteWarehouseIngredientsAsync(ingredients);
+                if (deleteWarehouseIngredients is not null) isSuccessful = true;
+            }
+            catch
+            {
+                isSuccessful = false;
+            }
+            
             return isSuccessful;
         }
         public async ValueTask<bool> AddWarehouseIngredientFromMealDbAsync(MealsDbSearchCleaned selectedRecipe)

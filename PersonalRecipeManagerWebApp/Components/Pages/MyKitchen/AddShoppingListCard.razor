@@ -9,7 +9,8 @@
 
 <PageTitle>ShoppingListNameCard</PageTitle>
 
-<RadzenTemplateForm TItem="string">
-    <RadzenTextBox @bind-Value="shoppingListName" Placeholder="Enter the name of your shopping list" Style="width: 350px"/>
-    <RadzenButton Text="Submit" ButtonType="ButtonType.Submit" Click="@OnSubmit" />
+<RadzenTemplateForm TItem="string" class="space-y-4">
+    <RadzenTextBox class="p-2" @bind-Value="shoppingListName" Placeholder="Enter the name of your shopping list" Style="width: 350px"/>
+    <RadzenButton class="p-2" Text="Submit" ButtonType="ButtonType.Submit" Click="@OnSubmit" />
 </RadzenTemplateForm>
+

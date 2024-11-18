@@ -5,7 +5,10 @@
 @inject IHandleInteractionService InteractionService
 
 <RadzenDropDown @bind-Value="@SelectedKitchenId" Data="@KitchenNames" TextProperty="Name" ValueProperty="Id" Style="width:100%" />
-<RadzenButton Text="Select" Click="@OnSelectKitchen" />
+<RadzenStack class="mt-4" Visible="true" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" Gap="0.5rem">
+    <RadzenButton Text="Select" Click="@OnSelectKitchen" />
+    <RadzenButton Click="@((args) => DialogService.Close(true))" Variant="Variant.Flat" Text="Close" Style="width: 120px" />
+</RadzenStack>
 
 @code {
     [CascadingParameter] public Guid UserId { get; set; }

@@ -38,8 +38,15 @@ namespace PersonalRecipeManagerWebApp.Services
         public async ValueTask<bool> RemoveWarehouseEquipmentAsync(Equipment equipment)
         {
             bool isSuccessful = false;
-            Equipment deleteWarehouseEquipment = await _broker.DeleteWarehouseEquipmentAsync(equipment);
-            if (deleteWarehouseEquipment is not null) isSuccessful = true;
+            try
+            {
+                Equipment deleteWarehouseEquipment = await _broker.DeleteWarehouseEquipmentAsync(equipment);
+                if (deleteWarehouseEquipment is not null) isSuccessful = true;
+            }
+            catch
+            {
+                isSuccessful = false;
+            }
             return isSuccessful;
         }
 

@@ -24,6 +24,8 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
         private bool disableAdd = false;
         private bool insertingRow = false;
 
+        private int recipeInstructionsSteps = 0;
+
         Recipe recipe;
 
         List<RecipeIngredientsViewModel> recipeIngredients;
@@ -56,6 +58,10 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
             else
             {
                 recipe = await InteractionService.RetrieveRecipeByIdAsync(RecipeId);
+                //if (recipe.Instructions is null)
+                //{
+                //    recipe.Instructions = "Add Instructions";
+                //}
                 recipeIngredients = await InteractionService.RetrieveRecipeIngredientsDtoByRecipeIdAsync(RecipeId);
                 recipeEquipment = await InteractionService.RetrieveRecipeEquipmentDtoByRecipeIdAsync(RecipeId);
 
@@ -80,12 +86,19 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyRecipes
         async Task OnClickSaveRecipeInfo()
         {
             disabled = true;
-            await InteractionService.UpsertRecipeAsync(recipe);
-            await InteractionService.AddUserRecipeAsync(new()
+            
+            if (isNew)
             {
-                RecipeId = recipe.Id,
-                UserId = UserId,
-            });
+                await InteractionService.AddUserRecipeAsync(new()
+                {
+                    RecipeId = recipe.Id,
+                    UserId = UserId,
+                });
+            }
+            else
+            {
+                await InteractionService.UpsertRecipeAsync(recipe);
+            }
         }
 
         void NavigateToRecipes()

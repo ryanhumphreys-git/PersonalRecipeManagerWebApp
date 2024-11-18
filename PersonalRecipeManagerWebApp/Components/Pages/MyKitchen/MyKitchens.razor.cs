@@ -3,6 +3,7 @@ using PersonalRecipeManagerWebApp.Models;
 using Radzen.Blazor;
 using Radzen;
 using PersonalRecipeManagerWebApp.Services;
+using PersonalRecipeManagerWebApp.Models.Ingredients;
 
 namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
 {
@@ -50,14 +51,30 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
         async Task OnCreateRow(Kitchen kitchen)
         {
             disableAdd = false;
+            Guid newKitchenId = Guid.NewGuid();
 
-            Kitchen newKitchen = new(Guid.NewGuid(), kitchen.TypeId, kitchen.Name);
+            Kitchen newKitchen = new(newKitchenId, kitchen.TypeId, kitchen.Name);
             userKitchens.Add(newKitchen);
 
             bool addKitchenSuccessful = await InteractionService.AddKitchenAsync(newKitchen);
             if (addKitchenSuccessful is false)
             {
-                NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to save changes for {kitchen.Name})");
+                NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to add kitchen: {kitchen.Name})");
+                return;
+            }
+
+            UserKitchen newUserKitchen = new()
+            {
+                UserId = UserId,
+                KitchenId = newKitchenId
+            };
+
+            UserKitchen addUserKitchenSuccessful = await InteractionService.AddUserKitchenAsync(newUserKitchen);
+            if (addUserKitchenSuccessful is null)
+            {
+                userKitchens.Remove(newKitchen);
+                await InteractionService.RemoveKitchenAsync(newKitchen);
+                NotificationService.Notify(NotificationSeverity.Error, "Error", $"Unable to add kitchen: {kitchen.Name})");
             }
         }
 
@@ -81,7 +98,15 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
 
         async Task OnEditKitchen(Kitchen kitchen)
         {
-            NavigationManager.NavigateTo($"/myrecipes/editrecipe?RecipeId={kitchen.Id}&UserId={UserId}");
+            currentlyEditingKitchen = new()
+            {
+                Id = kitchen.Id,
+                Name = kitchen.Name,
+            };
+
+            disableAdd = true;
+
+            await kitchenGrid.EditRow(kitchen);
         }
 
         async Task SaveRow(Kitchen kitchen)

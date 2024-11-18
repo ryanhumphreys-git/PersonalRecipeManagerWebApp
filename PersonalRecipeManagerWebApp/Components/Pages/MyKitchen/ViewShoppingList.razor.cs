@@ -39,9 +39,14 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
         }
         async Task OnClickSubmitShoppingList()
         {
-            Guid kitchenId = await DialogService.OpenAsync<KitchenSelectionDialogCard>("Select a kitchen to stock:",
+            var kitchenId = await DialogService.OpenAsync<KitchenSelectionDialogCard>("Select a Kitchen:",
                 new Dictionary<string, object>(), 
-                new DialogOptions() { Width = "400px", Height = "300px" });
+                new DialogOptions() { Width = "400px", Height = "200px" });
+
+            if(kitchenId is true)
+            {
+                return;
+            }
 
             foreach(ShoppingListViewModel item in items)
             {

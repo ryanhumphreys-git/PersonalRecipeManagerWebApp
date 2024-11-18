@@ -14,13 +14,11 @@
 }
 else
 {
-    <p> </p>
-    <br/>
     <RadzenStack Gap="20px" Orientation="Orientation.Vertical" JustifyContent="JustifyContent.SpaceBetween" Style="height: 100%;" class="pr-32 pl-32 flex-column flex-wrap">
         <RadzenStack>
             <RadzenRow>
                 <RadzenRow Size="14" SizeMD="8" class="bg-slate-200 p-4 flex-column flex-row rz-border-radius-1" Style="border: var(--rz-grid-cell-border); width: 100%; max-width: 100%">
-                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="100">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="70" >
                         <RadzenStack Gap="0" class="rz-text-truncate">
                             <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Name</RadzenText>
                             <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate" Visible="@(disabled)"><b>@(recipe.Name)</b></RadzenText>
@@ -38,18 +36,14 @@ else
                         </RadzenStack>
                         <RadzenStack Gap="0" >
                             <RadzenText TextStyle="TextStyle.Overline" class="rz-mt-2 rz-my-0" Style="color: var(--rz-text-tertiary-color);">Cost</RadzenText>
-                            <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate"><b>@(recipe.Cost)</b></RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body1" class="rz-text-truncate"><b>@($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", recipe.Cost)}")</b></RadzenText>
                         </RadzenStack>
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Back to Recipes" Click="@NavigateToRecipes"  />
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Edit" Click="@OnClickEditRecipeInfo"  Visible="@(disabled)" />
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="Save" Click="@OnClickSaveRecipeInfo"  Visible="@(!disabled)" />
+                        <RadzenButton class="w-50" ButtonStyle="ButtonStyle.Primary" Text="Back to Recipes" Click="@NavigateToRecipes" Visible="@(disabled)" />
+                        <RadzenButton class="w-35" ButtonStyle="ButtonStyle.Primary" Text="Edit" Click="@OnClickEditRecipeInfo"  Visible="@(disabled)" />
+                        <RadzenButton class="w-35" ButtonStyle="ButtonStyle.Primary" Text="Save" Click="@OnClickSaveRecipeInfo"  Visible="@(!disabled)" />
                     </RadzenStack>
                 </RadzenRow>
             </RadzenRow>
-            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
-                <RadzenText TextStyle="TextStyle.Subtitle1" class="rz-m-0">@recipe.Name Cost</RadzenText>
-                <RadzenBadge BadgeStyle="BadgeStyle.Secondary" Text=@($"{String.Format(new System.Globalization.CultureInfo("en-US"), "{0:C}", recipe.Cost)}") />
-            </RadzenStack>
             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
                 <RadzenDataGrid @ref="ingredientsGrid"
                                 AllowPaging="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" TItem="RecipeIngredientsViewModel"
@@ -157,6 +151,11 @@ else
                         </RadzenDataGridColumn>
                     </Columns>
                 </RadzenDataGrid>
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Normal" AlignItems="AlignItems.Center" Gap="0">
+                <RadzenLabel class="text-base" Text="Recipe Instructions" />
+                <RadzenLabel class="text-sm" Text="Add STEP # before each step" />
+                <RadzenTextArea Placeholder="Add Instructions" @bind-Value=recipe.Instructions class="h-48 w-full align-top pt-0"/>
             </RadzenStack>
         </RadzenStack>
     </RadzenStack>

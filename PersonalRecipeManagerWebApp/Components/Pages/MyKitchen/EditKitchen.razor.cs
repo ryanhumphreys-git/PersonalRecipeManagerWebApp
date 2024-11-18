@@ -35,6 +35,8 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
         private bool isLoading = true;
         private bool disableAdd;
         private bool insertingRow;
+        private bool addingIngredient = false;
+        private bool addingEquipment = false;
 
         private bool kitchenIngredientsFound = true;
         private bool kitchenEquipmentFound = true;
@@ -118,6 +120,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
         {
             insertingRow = true;
             disableAdd = true;
+            addingIngredient = true;
             var ingredient = new KitchenIngredientsViewModel();
             await ingredientsGrid.InsertRow(ingredient);
         }
@@ -132,6 +135,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
 
             disableAdd = false;
             insertingRow = false;
+            addingIngredient = false;
 
             ingredientsGrid.CancelEditRow(ingredient);
         }
@@ -169,6 +173,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
                     ingredientIds.Add(ingredient.Id);
                 }
                 disableAdd = false;
+                addingIngredient = false;
 
                 await ingredientsGrid.UpdateRow(ingredient);
             }
@@ -217,6 +222,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
         {
             insertingRow = true;
             disableAdd = true;
+            addingEquipment = true;
             var equipment = new KitchenEquipmentViewModel();
             await equipmentGrid.InsertRow(equipment);
         }
@@ -231,6 +237,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
 
             disableAdd = false;
             insertingRow = false;
+            addingEquipment = false;
 
             equipmentGrid.CancelEditRow(equipment);
         }
@@ -267,6 +274,7 @@ namespace PersonalRecipeManagerWebApp.Components.Pages.MyKitchen
                 }
 
                 insertingRow = false;
+                addingEquipment = false;
             }
         }
 

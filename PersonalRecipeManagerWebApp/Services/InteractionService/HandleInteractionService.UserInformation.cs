@@ -20,10 +20,6 @@ namespace PersonalRecipeManagerWebApp.Services
         {
             return await _broker.SelectUserInformationByIdAsync(id);
         }
-        public async ValueTask<UserKitchen> RetrieveUserKitchenByIdAsync(Guid id)
-        {
-            return await _broker.SelectUserKitchenByIdAsync(id);
-        }
         public async ValueTask<List<Recipe>> RetrieveUserRecipesByIdAsync(Guid userId, Guid recipeId)
         {
             List<UserRecipes> userRecipeInfo = await _broker.SelectAllUserRecipesAsync(userId);
@@ -31,6 +27,10 @@ namespace PersonalRecipeManagerWebApp.Services
             List<Recipe> allRecipes = await _broker.SelectAllRecipeAsync();
             List<Recipe> userRecipes = allRecipes.Where(r => userRecipeIds.Contains(r.Id)).ToList();
             return userRecipes;
+        }
+        public async ValueTask<UserKitchen> AddUserKitchenAsync(UserKitchen kitchen)
+        {
+            return await _broker.InsertUserKitchenAsync(kitchen);
         }
         public async ValueTask<List<Kitchen>> RetrieveAllUserKitchensAsync(Guid id)
         {
